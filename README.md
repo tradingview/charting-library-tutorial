@@ -11,5 +11,5 @@ Charting Library is a standalone solution for displaying charts. This free, down
 In the first part of [the Tutorial][tutorial-url] you will know how to connect the search of symbols and the display of historical data using ordinary HTTP requests, and then in the second part you will learn how to connect the realtime data via WebSocket.
 
 [website-url]: https://www.tradingview.com/HTML5-stock-forex-bitcoin-charting-library/
-[tutorial-url]: https://github.com/tradingview/charting-library-tutorial/wiki
+[tutorial-url]: documentation/home.md
 [cryptocompare-url]: https://github.com/tradingview/charting-library-tutorial/wiki
