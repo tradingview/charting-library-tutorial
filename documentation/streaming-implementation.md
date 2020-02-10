@@ -1,3 +1,5 @@
+# Streaming Implementation
+
 In this article we'll implement real-time updates via WebSocket.
 
 ## Connect

@@ -1,3 +1,5 @@
+# Datafeed Implementation
+
 ## Why you need external data source
 
 The Charting Library is used to display financial data, but it doesn't contain any data itself. Whatever you have, a web API, a database or a CSV file, you can display your data in the Charting Library. In this example we'll use a web API integration of  [CryptoCompare][cryptocompare-website-url] (also [CryptoCompare API][cryptocompare-api-url]).

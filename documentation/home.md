@@ -1,3 +1,5 @@
+# Home
+
 The Tutorial contains step-by-step instructions for data source integration using JS API.
 
 ## Content

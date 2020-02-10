@@ -1,3 +1,5 @@
+# Getting Started
+
 ## About this tutorial
 
 TradingView Charting Library is a powerful instrument for displaying financial data. It has different technical analysis tools including about 100 indicators and more than 70 drawings. Under the hood it can process and display dozens thousands of data points, build custom resolutions and compare data from different time zones.

@@ -1,3 +1,5 @@
+# Integration
+
 From this article you will know the base elements of the integration and you will create a skeleton that we will use further.
 
 ## Browser support
