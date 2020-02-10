@@ -6,7 +6,7 @@ Charting Library is a standalone solution for displaying charts. This free, down
 
 ## What is this tutorial about
 
-The Tutorial[The Tutorial][tutorial-url] explains step by step how to connect your data to the Charting Library. It uses free [CryptoCompare][cryptocompare-url] API.
+[The Tutorial][tutorial-url] explains step by step how to connect your data to the Charting Library. It uses free [CryptoCompare][cryptocompare-url] API.
 
 In the first part of [the Tutorial][tutorial-url] you will know how to connect the search of symbols and the display of historical data using ordinary HTTP requests, and then in the second part you will learn how to connect the realtime data via WebSocket.
 
