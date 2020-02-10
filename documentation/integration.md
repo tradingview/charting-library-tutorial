@@ -99,6 +99,7 @@ export default {
 ```
 
 Now we're ready to [implement these methods](datafeed-implementation.md).
+Also you can return to [Home Page](home.md).
 
 [library-url]: https://github.com/tradingview/charting_library/
 [widget-docs-url]: https://github.com/tradingview/charting_library/wiki/Widget-Constructor
