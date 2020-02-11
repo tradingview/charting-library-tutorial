@@ -51,7 +51,7 @@ const configurationData = {
 Our datafeed should return this configuration to the Charting Library. 
 Note, that the callback must be called asynchronously.
 
-**datafeed.js**:
+[datafeed.js][datafeed-file-url]:
 
 ```javascript
 const configurationData = {
@@ -74,7 +74,7 @@ This method is used by the library to retrieve information about a specific symb
 
 Let's add some shared functions in `helpers.js` that we'll need to implement `resolveSymbol`. These functions are specific for using CryptoCompare and, probably, you won't need most of them for implementing your own datafeed.
 
-**helpers.js**:
+[helpers.js][helpers-file-url]:
 
 ```javascript
 // Make requests to CryptoCompare API
@@ -97,7 +97,7 @@ export function generateSymbol(exchange, fromSymbol, toSymbol) {
 }
 ```
 
-In **datafeed.js** we are going to add a helper function that is used to load all symbols for all supported exchanges (see [CryptoCompare API][load-all-cryptocompare-api-url]):
+In [datafeed.js][datafeed-file-url] we are going to add a helper function that is used to load all symbols for all supported exchanges (see [CryptoCompare API][load-all-cryptocompare-api-url]):
 
 ```javascript
 import { makeApiRequest, generateSymbol } from './helpers.js';
@@ -181,7 +181,7 @@ export default {
 
 This method is used by the charting library to get historical data for the symbol.
 
-Add `parseFullSymbol` function to **helpers.js**. It parses a crypto pair symbol (`full` value returned from `generateSymbol`) and returns all parts of this symbol:
+Add `parseFullSymbol` function to [helpers.js][helpers-file-url]. It parses a crypto pair symbol (`full` value returned from `generateSymbol`) and returns all parts of this symbol:
 
 ```javascript
 // ...
@@ -196,7 +196,7 @@ export function parseFullSymbol(fullSymbol) {
 }
 ```
 
-Use [Cryptocompare API][get-history-cryptocompare-api-url] and newly created function `parseFullSymbol` in `getBars` method at **datafeed.js**. The API doesn't allow to specify a `from` date so we have to filter bars on the client-side:
+Use [Cryptocompare API][get-history-cryptocompare-api-url] and newly created function `parseFullSymbol` in `getBars` method at [datafeed.js][datafeed-file-url]. The API doesn't allow to specify a `from` date so we have to filter bars on the client-side:
 
 ```javascript
 import { makeApiRequest, parseFullSymbol, generateSymbol } from './helpers.js';
@@ -254,7 +254,7 @@ export default {
 
 This method is used by the Charting Library to search symbols every time a user types a text in the symbol search box. Changing symbols is also works using the symbol search.
 
-We will request all available symbols from the API and then filter them in **datafeed.js**. If a user is not selected an exchange, the `exchange` argument will be equal to an empty string:
+We will request all available symbols from the API and then filter them in [datafeed.js][datafeed-file-url]. If a user is not selected an exchange, the `exchange` argument will be equal to an empty string:
 
 ```javascript
 searchSymbols: async (
@@ -288,3 +288,6 @@ Also you can return to [Home Page](home.md).
 [resolve-symbol-docs-url]: https://github.com/tradingview/charting_library/wiki/JS-Api#resolvesymbolsymbolname-onsymbolresolvedcallback-onresolveerrorcallback
 [get-bars-docs-url]: https://github.com/tradingview/charting_library/wiki/JS-Api#getbarssymbolinfo-resolution-from-to-onhistorycallback-onerrorcallback-firstdatarequest
 [search-symbols-docs-url]: https://github.com/tradingview/charting_library/wiki/JS-Api#searchsymbolsuserinput-exchange-symboltype-onresultreadycallback
+
+[datafeed-file-url]: ../src/datafeed.js
+[helpers-file-url]: ../src/helpers.js

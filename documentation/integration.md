@@ -23,7 +23,7 @@ In the example we are using ES6, that might be not supported by some old browser
 ## Adding a container
 
 You need to have some DOM container that will be used for displaying of the chart.
-Create an initial HTML file **index.html** in your project folder and add the following code:
+Create an initial HTML file [index.html](../index.html) in your project folder and add the following code:
 
 ```html
 <!DOCTYPE HTML>
@@ -36,7 +36,7 @@ Create an initial HTML file **index.html** in your project folder and add the fo
         </script>
 
         <!-- Custom datafeed module. -->
-        <script type="module" src="main.js"></script>
+        <script type="module" src="src/main.js"></script>
     </head>
     <body style="margin:0px;">
         <div id="tv_chart_container">
@@ -50,7 +50,7 @@ We've just added a script that is used to load the Charting Library and a contai
 
 ## Creating a Charting Library widget
 
-Create **main.js** and add the following code, that creates a [Charting Library widget][widget-docs-url]. Note that the widget constructor has a lot of settings, but we are setting only mandatory ones.
+Add a folder `src`, create [main.js](../src/main.js) in it and add the following code, that creates a [Charting Library widget][widget-docs-url]. Note that the widget constructor has a lot of settings, but we are setting only mandatory ones.
 
 ```javascript
 // Datafeed implementation, will be added later
@@ -62,13 +62,13 @@ window.tvWidget = new TradingView.widget({
   fullscreen: true, // displays the chart in the fullscreen mode
   container_id: 'tv_chart_container',
   datafeed: Datafeed,
-  library_path: 'charting_library_clonned_data/charting_library/',
+  library_path: '../charting_library_clonned_data/charting_library/',
 });
 ```
 
 ## Creating a mock of the datafeed
 
-Now you are one step away from being able to start your implementaion. Let's create a datafeed that writes a message to the console when any method is called. In the next part of the tutorial we'll implement all of these methods, but now you can copy this code to **datafeed.js** and try to run the implementation using `npx serve`.
+Now you are one step away from being able to start your implementaion. Let's create a datafeed that writes a message to the console when any method is called. In the next part of the tutorial we'll implement all of these methods, but now you can copy this code to [datafeed.js](../src/datafeed.js), go to the chart folder and try to run the implementation using `npx serve`.
 
 ```javascript
 export default {

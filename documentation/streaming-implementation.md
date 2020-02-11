@@ -3,9 +3,9 @@
 In this article we'll implement real-time updates via WebSocket.
 
 ## Connect
-To connect to the streaming API we need to add socket.io script to the page **before** main.js script:
+To connect to the streaming API we need to add socket.io script to the page **before** main.js script.
 
-**index.html**:
+[index.html](../index.html):
 
 ```html
 <!DOCTYPE HTML>
@@ -18,9 +18,9 @@ To connect to the streaming API we need to add socket.io script to the page **be
 </html>
 ```
 
-Let's create a new file called `streaming.js`, where we'll implement a connection to the WebSocket and streaming real-time updates:
+Let's create a new file called [streaming.js][streaming-file-url], where we'll implement a connection to the WebSocket and streaming real-time updates.
 
-**streaming.js**:
+[streaming.js][streaming-file-url]:
 
 ```javascript
 const socket = io('wss://streamer.cryptocompare.com');
@@ -47,12 +47,12 @@ export function unsubscribeFromStream() {
 ```
 
 
-And now we can use these functions in `datafeed.js` file to make a subscription to real-time updates.
+And now we can use these functions in [datafeed.js][datafeed-file-url] file to make a subscription to real-time updates.
 
 - [subscribeBars documentation][subscribe-bars-docs-url]
 - [unsubscribeBars documentation][unsubscribe-bars-docs-url]
 
-**datafeed.js**:
+[datafeed.js][datafeed-file-url]:
 
 ```javascript
 import { subscribeOnStream, unsubscribeFromStream } from './streaming.js';
@@ -90,7 +90,7 @@ export default {
 
 We've connected to the WebSocket, now we need to subscribe to the channels to receive updates:
 
-**streaming.js**:
+[streaming.js][streaming-file-url]:
 
 ```javascript
 import { parseFullSymbol } from './helpers.js';
@@ -166,7 +166,7 @@ Now we need to handle updates coming from the WebSocket. The response will look 
 We can parse this response string according to [fields description][cryptocompare-fields-url].
 Also, from all [event types][cryptocompare-events-url] we have to pick only trade events. 
 
-**streaming.js**:
+[streaming.js][streaming-file-url]:
 
 ```javascript
 // ...
@@ -210,7 +210,7 @@ socket.on('m', data => {
 });
 ```
 
-Before running the project, open your **datafeed.js** file and adjust your `GetBars` method to save the last bar data for the current symbol. We wouldn't need this, if we had a more accurate way to check for the new bar or if we had a bars streaming API.
+Before running the project, open your [datafeed.js][datafeed-file-url] file and adjust your `GetBars` method to save the last bar data for the current symbol. We wouldn't need this, if we had a more accurate way to check for the new bar or if we had a bars streaming API.
 
 ```javascript
 //...
@@ -224,7 +224,7 @@ Before running the project, open your **datafeed.js** file and adjust your `GetB
 ```
 
 CryptoCompare provides a streaming of ticks, but not bars. So, let's roughly check that the new trade is related to the new daily bar. Please note, you may need more comprehensive check here for the production version.
-Adjust code in **streaming.js**.
+Adjust code in [streaming.js][streaming-file-url].
 Add an utility function:
 
 ```javascript
@@ -266,25 +266,11 @@ socket.on('m', data => {
 });
 ```
 
-Before running the project, open your **datafeed.js** file and adjust your `GetBars` method to save last bar data for the current symbol. We wouldn't need this, if we had a more accurate way to check for the new bar or if we had a bars streaming API.
-
-
-```javascript
-//...
-  data.Data.forEach( ... );
-
-  if (firstDataRequest) {
-    lastBarsCache.set(symbolInfo.full_name, { ...bars[bars.length - 1] });
-  }
-  console.log(`[getBars]: returned ${bars.length} bar(s)`);
-//...
-```
-
 ## Run
 
 We've implemented a datafeed with searching/resolving of symbols, loading historical data and providing real-time updates via WebSocket.
 
-Now you can run `npx serve` and see how it works.
+Now you can go upper to the `chart` folder, run `npx serve` and see how it works.
 
 The full code of this example you can find in the [Tutorial Repo][tutorial-repo-url].
 
@@ -297,3 +283,6 @@ Return to [Home Page](home.md).
 [cryptocompare-events-url]: https://github.com/cryptoqween/cryptoqween.github.io/blob/d6c16d53717c4d4e4880d3f40284ee6eacb9e832/streamer/ccc-streamer-utilities.js#L6
 [subscribe-bars-docs-url]: https://github.com/tradingview/charting_library/wiki/JS-Api#subscribebarssymbolinfo-resolution-onrealtimecallback-subscriberuid-onresetcacheneededcallback
 [unsubscribe-bars-docs-url]: https://github.com/tradingview/charting_library/wiki/JS-Api#unsubscribebarssubscriberuid
+
+[streaming-file-url]: ../src/streaming.js
+[datafeed-file-url]: ../src/datafeed.js

@@ -12,4 +12,4 @@ In the first part of [the Tutorial][tutorial-url] you will know how to connect t
 
 [website-url]: https://www.tradingview.com/HTML5-stock-forex-bitcoin-charting-library/
 [tutorial-url]: documentation/home.md
-[cryptocompare-url]: https://github.com/tradingview/charting-library-tutorial/wiki
+[cryptocompare-url]: https://www.cryptocompare.com/
