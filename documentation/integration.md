@@ -17,12 +17,7 @@ In the example we are using ES6, that might be not supported by some old browser
 1. Clone [TradingView Charting Library][library-url]. For access instructions, see [Getting Started](getting-started.md).
 
     ```bash
-    git clone https://github.com/tradingview/charting_library
-    ```
-1. Rename `charting_library` folder:
-
-    ```bash
-    mv charting_library charting_library_clonned_data
+    git clone https://github.com/tradingview/charting_library charting_library_clonned_data
     ```
 
 ## Adding a container
