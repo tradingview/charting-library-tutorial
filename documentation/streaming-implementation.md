@@ -26,15 +26,15 @@ Let's create a new file called [streaming.js][streaming-file-url], where we'll i
 const socket = io('wss://streamer.cryptocompare.com');
 
 socket.on('connect', () => {
-  console.log('[socket] Connected');
+    console.log('[socket] Connected');
 });
 
 socket.on('disconnect', (reason) => {
-  console.log('[socket] Disconnected:', reason);
+    console.log('[socket] Disconnected:', reason);
 });
 
 socket.on('error', (error) => {
-  console.log('[socket] Error:', error);
+    console.log('[socket] Error:', error);
 });
 
 export function subscribeOnStream() {
@@ -60,29 +60,29 @@ import { subscribeOnStream, unsubscribeFromStream } from './streaming.js';
 const lastBarsCache = new Map();
 // ...
 export default {
-  // ...
-  subscribeBars: (
-    symbolInfo,
-    resolution,
-    onRealtimeCallback,
-    subscribeUID,
-    onResetCacheNeededCallback
-  ) => {
-    console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID);
-    subscribeOnStream(
-      symbolInfo,
-      resolution,
-      onRealtimeCallback,
-      subscribeUID,
-      onResetCacheNeededCallback,
-      lastBarsCache.get(symbolInfo.full_name)
-    );
-  },
+    // ...
+    subscribeBars: (
+        symbolInfo,
+        resolution,
+        onRealtimeCallback,
+        subscribeUID,
+        onResetCacheNeededCallback
+    ) => {
+        console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID);
+        subscribeOnStream(
+            symbolInfo,
+            resolution,
+            onRealtimeCallback,
+            subscribeUID,
+            onResetCacheNeededCallback,
+            lastBarsCache.get(symbolInfo.full_name)
+        );
+    },
 
-  unsubscribeBars: (subscriberUID) => {
-    console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);
-    unsubscribeFromStream(subscriberUID);
-  },
+    unsubscribeBars: (subscriberUID) => {
+        console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);
+        unsubscribeFromStream(subscriberUID);
+    },
 };
 ```
 
@@ -98,34 +98,34 @@ import { parseFullSymbol } from './helpers.js';
 const channelToSubscription = new Map();
 // ...
 export function subscribeOnStream(
-  symbolInfo,
-  resolution,
-  onRealtimeCallback,
-  subscribeUID,
-  onResetCacheNeededCallback,
-  lastDailyBar
-) {
-  const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
-  const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
-  const handler = {
-    id: subscribeUID,
-    callback: onRealtimeCallback,
-  };
-  let subscriptionItem = channelToSubscription.get(channelString);
-  if (subscriptionItem) {
-    // already subscribed to the channel, use the existing subscription
-    subscriptionItem.handlers.push(handler);
-    return;
-  }
-  subscriptionItem = {
-    subscribeUID,
+    symbolInfo,
     resolution,
-    lastDailyBar,
-    handlers: [handler],
-  };
-  channelToSubscription.set(channelString, subscriptionItem);
-  console.log('[subscribeBars]: Subscribe to streaming. Channel:', channelString);
-  socket.emit('SubAdd', { subs: [channelString] });
+    onRealtimeCallback,
+    subscribeUID,
+    onResetCacheNeededCallback,
+    lastDailyBar
+) {
+    const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
+    const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
+    const handler = {
+        id: subscribeUID,
+        callback: onRealtimeCallback,
+    };
+    let subscriptionItem = channelToSubscription.get(channelString);
+    if (subscriptionItem) {
+        // already subscribed to the channel, use the existing subscription
+        subscriptionItem.handlers.push(handler);
+        return;
+    }
+    subscriptionItem = {
+        subscribeUID,
+        resolution,
+        lastDailyBar,
+        handlers: [handler],
+    };
+    channelToSubscription.set(channelString, subscriptionItem);
+    console.log('[subscribeBars]: Subscribe to streaming. Channel:', channelString);
+    socket.emit('SubAdd', { subs: [channelString] });
 }
 ```
 
@@ -138,18 +138,18 @@ export function unsubscribeFromStream(subscriberUID) {
     for (const channelString of channelToSubscription.keys()) {
         const subscriptionItem = channelToSubscription.get(channelString);
         const handlerIndex = subscriptionItem.handlers
-          .findIndex(handler => handler.id === subscriberUID);
+            .findIndex(handler => handler.id === subscriberUID);
 
         if (handlerIndex !== -1) {
             // remove from handlers
             subscriptionItem.handlers.splice(handlerIndex, 1);
 
             if (subscriptionItem.handlers.length === 0) {
-              // unsubscribe from the channel, if it was the last handler
-              console.log('[unsubscribeBars]: Unsubscribe from streaming. Channel:', channelString);
-              socket.emit('SubRemove', { subs: [channelString] });
-              channelToSubscription.delete(channelString);
-              break;
+                // unsubscribe from the channel, if it was the last handler
+                console.log('[unsubscribeBars]: Unsubscribe from streaming. Channel:', channelString);
+                socket.emit('SubRemove', { subs: [channelString] });
+                channelToSubscription.delete(channelString);
+                break;
             }
         }
     }
@@ -171,42 +171,42 @@ Also, from all [event types][cryptocompare-events-url] we have to pick only trad
 ```javascript
 // ...
 socket.on('m', data => {
-  console.log('[socket] Message:', data);
-  const [
-    eventTypeStr,
-    exchange,
-    fromSymbol,
-    toSymbol,
-    ,
-    ,
-    tradeTimeStr,
-    ,
-    tradePriceStr,
-  ] = data.split('~');
+    console.log('[socket] Message:', data);
+    const [
+        eventTypeStr,
+        exchange,
+        fromSymbol,
+        toSymbol,
+        ,
+        ,
+        tradeTimeStr,
+        ,
+        tradePriceStr,
+    ] = data.split('~');
 
-  if (parseInt(eventTypeStr) !== 0) {
-    // skip all non-TRADE events
-    return;
-  }
-  const tradePrice = parseFloat(tradePriceStr);
-  const tradeTime = parseInt(tradeTimeStr);
-  const channelString = `0~${exchange}~${fromSymbol}~${toSymbol}`;
-  const subscriptionItem = channelToSubscription.get(channelString);
-  if (subscriptionItem === undefined) {
-    return;
-  }
-  const lastDailyBar = subscriptionItem.lastDailyBar;
-  let bar = {
-    ...lastDailyBar,
-    high: Math.max(lastDailyBar.high, tradePrice),
-    low: Math.min(lastDailyBar.low, tradePrice),
-    close: tradePrice,
-  };
-  console.log('[socket] Update the latest bar by price', tradePrice);
-  subscriptionItem.lastDailyBar = bar;
+    if (parseInt(eventTypeStr) !== 0) {
+        // skip all non-TRADE events
+        return;
+    }
+    const tradePrice = parseFloat(tradePriceStr);
+    const tradeTime = parseInt(tradeTimeStr);
+    const channelString = `0~${exchange}~${fromSymbol}~${toSymbol}`;
+    const subscriptionItem = channelToSubscription.get(channelString);
+    if (subscriptionItem === undefined) {
+        return;
+    }
+    const lastDailyBar = subscriptionItem.lastDailyBar;
+    let bar = {
+        ...lastDailyBar,
+        high: Math.max(lastDailyBar.high, tradePrice),
+        low: Math.min(lastDailyBar.low, tradePrice),
+        close: tradePrice,
+    };
+    console.log('[socket] Update the latest bar by price', tradePrice);
+    subscriptionItem.lastDailyBar = bar;
 
-  // send data to every subscriber of that symbol
-  subscriptionItem.handlers.forEach(handler => handler.callback(bar));
+    // send data to every subscriber of that symbol
+    subscriptionItem.handlers.forEach(handler => handler.callback(bar));
 });
 ```
 
@@ -214,12 +214,12 @@ Before running the project, open your [datafeed.js][datafeed-file-url] file and 
 
 ```javascript
 //...
-  data.Data.forEach( ... );
+data.Data.forEach( ... );
 
-  if (firstDataRequest) {
+if (firstDataRequest) {
     lastBarsCache.set(symbolInfo.full_name, { ...bars[bars.length - 1] });
-  }
-  console.log(`[getBars]: returned ${bars.length} bar(s)`);
+}
+console.log(`[getBars]: returned ${bars.length} bar(s)`);
 //...
 ```
 
@@ -229,40 +229,40 @@ Add an utility function:
 
 ```javascript
 function getNextDailyBarTime(barTime) {
-  const date = new Date(barTime * 1000);
-  date.setDate(date.getDate() + 1);
-  return date.getTime() / 1000;
+    const date = new Date(barTime * 1000);
+    date.setDate(date.getDate() + 1);
+    return date.getTime() / 1000;
 }
 ```
 and adjust `socket.on` listener: 
 
 ```javascript
 socket.on('m', data => {
-  //...
-  const lastDailyBar = subscriptionItem.lastDailyBar;
-  const nextDailyBarTime = getNextDailyBarTime(lastDailyBar.time);
+    //...
+    const lastDailyBar = subscriptionItem.lastDailyBar;
+    const nextDailyBarTime = getNextDailyBarTime(lastDailyBar.time);
 
-  let bar;
-  if (tradeTime >= nextDailyBarTime) {
-    bar = {
-      time: nextDailyBarTime,
-      open: tradePrice,
-      high: tradePrice,
-      low: tradePrice,
-      close: tradePrice,
-    };
-    console.log('[socket] Generate new bar', bar);
-  } else {
-    bar = {
-      ...lastDailyBar,
-      high: Math.max(lastDailyBar.high, tradePrice),
-      low: Math.min(lastDailyBar.low, tradePrice),
-      close: tradePrice,
-    };
-    console.log('[socket] Update the latest bar by price', tradePrice);
-  }
-  subscriptionItem.lastDailyBar = bar;
-  //...
+    let bar;
+    if (tradeTime >= nextDailyBarTime) {
+        bar = {
+            time: nextDailyBarTime,
+            open: tradePrice,
+            high: tradePrice,
+            low: tradePrice,
+            close: tradePrice,
+        };
+        console.log('[socket] Generate new bar', bar);
+    } else {
+        bar = {
+            ...lastDailyBar,
+            high: Math.max(lastDailyBar.high, tradePrice),
+            low: Math.min(lastDailyBar.low, tradePrice),
+            close: tradePrice,
+        };
+        console.log('[socket] Update the latest bar by price', tradePrice);
+    }
+    subscriptionItem.lastDailyBar = bar;
+    //...
 });
 ```
 
