@@ -13,9 +13,9 @@ The tutorial is split into three parts: setting up the widget, integration of hi
 ## Before we begin
 
 The Charting Library is free, but its code is in the private repository on GitHub.
-Make sure that you have access to this repository: [https://github.com/tradingview/charting_library/][library-url].
+Make sure that you have access to this repository: <https://github.com/tradingview/charting_library/>.
 
-If you see 404 error page, then you need to request access to this repository at (https://tradingview.com/HTML5-stock-forex-bitcoin-charting-library/)[website-url], click on the `Get Library` button inside the Technical Analysis Chart tab.
+If you see 404 error page, then you need to request access to this repository at <https://tradingview.com/HTML5-stock-forex-bitcoin-charting-library/>, click on the `Get Library` button inside the Technical Analysis Chart tab.
 
 ## Result
 
@@ -44,7 +44,5 @@ If you want to see the result of this tutorial right away, you need to do the fo
 
 Proceed to the [Integration](integration.md) or return to [Home Page](home.md).
 
-[library-url]: https://github.com/tradingview/charting_library/
-[website-url]: https://tradingview.com/HTML5-stock-forex-bitcoin-charting-library/
 [tutorial-repo-url]: https://github.com/tradingview/charting-library-tutorial
 [demo-url]: https://charting-library.tradingview.com/
