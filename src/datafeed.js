@@ -1,69 +1,74 @@
-import { makeApiRequest, generateSymbol, parseFullSymbol } from './helpers.js';
-import { subscribeOnStream, unsubscribeFromStream } from './streaming.js';
+import {
+  makeApiRequest,
+  generateSymbol,
+  parseFullSymbol
+} from './helpers.js';
+import {
+  subscribeOnStream,
+  unsubscribeFromStream
+} from './streaming.js';
 
 const lastBarsCache = new Map();
 
 const configurationData = {
-	supported_resolutions: ['1D', '1W', '1M'],
-	exchanges: [
-		{
-			value: 'Bitfinex',
-			name: 'Bitfinex',
-			desc: 'Bitfinex',
-		},
-		{
-			// `exchange` argument for the `searchSymbols` method, if a user selects this exchange
-			value: 'Kraken',
-  
-			// filter name
-			name: 'Kraken',
-  
-			// full exchange name displayed in the filter popup
-			desc: 'Kraken bitcoin exchange',
-	  	},
-		],
-	symbols_types: [
-	  {
-			name: 'crypto',
-  
-			// `symbolType` argument for the `searchSymbols` method, if a user selects this symbol type
-			value: 'crypto',
-	  },
-	  	// ...
-	],
+  supported_resolutions: ['1D', '1W', '1M'],
+  exchanges: [{
+    value: 'Bitfinex',
+    name: 'Bitfinex',
+    desc: 'Bitfinex',
+  },
+  {
+    // `exchange` argument for the `searchSymbols` method, if a user selects this exchange
+    value: 'Kraken',
+
+    // filter name
+    name: 'Kraken',
+
+    // full exchange name displayed in the filter popup
+    desc: 'Kraken bitcoin exchange',
+  },
+  ],
+  symbols_types: [{
+    name: 'crypto',
+
+    // `symbolType` argument for the `searchSymbols` method, if a user selects this symbol type
+    value: 'crypto',
+  },
+    // ...
+  ],
 };
 
 async function getAllSymbols() {
-	const data = await makeApiRequest('data/v3/all/exchanges');
-	let allSymbols = [];
-  
-	for (const exchange of configurationData.exchanges) {
-	  const pairs = data.Data[exchange.value].pairs;
-  
-	  for (const leftPairPart of Object.keys(pairs)) {
-		  const symbols = pairs[leftPairPart].map(rightPairPart => {
-		  	const symbol = generateSymbol(exchange.value, leftPairPart, rightPairPart);
-		  	return {
-					symbol: symbol.short,
-					full_name: symbol.full,
-					description: symbol.short,
-					exchange: exchange.value,
-					ticker: symbol.full,
-					type: 'crypto',
-		  	};
-			});
-			allSymbols = [...allSymbols, ...symbols];
-	  }
-	}
-	return allSymbols;
+  const data = await makeApiRequest('data/v3/all/exchanges');
+  let allSymbols = [];
+
+  for (const exchange of configurationData.exchanges) {
+    const pairs = data.Data[exchange.value].pairs;
+
+    for (const leftPairPart of Object.keys(pairs)) {
+      const symbols = pairs[leftPairPart].map(rightPairPart => {
+        const symbol = generateSymbol(exchange.value, leftPairPart, rightPairPart);
+        return {
+          symbol: symbol.short,
+          full_name: symbol.full,
+          description: symbol.short,
+          exchange: exchange.value,
+          ticker: symbol.full,
+          type: 'crypto',
+        };
+      });
+      allSymbols = [...allSymbols, ...symbols];
+    }
+  }
+  return allSymbols;
 }
 
 export default {
-	onReady: (callback) => {
-		console.log('[onReady]: Method call');
-		setTimeout(() => callback(configurationData));	
+  onReady: (callback) => {
+    console.log('[onReady]: Method call');
+    setTimeout(() => callback(configurationData));
   },
-  
+
   searchSymbols: async (
     userInput,
     exchange,
@@ -81,7 +86,7 @@ export default {
     });
     onResultReadyCallback(newSymbols);
   },
-  
+
   resolveSymbol: async (
     symbolName,
     onSymbolResolvedCallback,
@@ -89,7 +94,9 @@ export default {
   ) => {
     console.log('[resolveSymbol]: Method call', symbolName);
     const symbols = await getAllSymbols();
-    const symbolItem = symbols.find(({ full_name }) => full_name === symbolName);
+    const symbolItem = symbols.find(({
+      full_name
+    }) => full_name === symbolName);
     if (!symbolItem) {
       console.log('[resolveSymbol]: Cannot resolve symbol', symbolName);
       onResolveErrorCallback('cannot resolve symbol');
@@ -134,7 +141,9 @@ export default {
       const data = await makeApiRequest(`data/histoday?${query}`);
       if (data.Response && data.Response === 'Error' || data.Data.length === 0) {
         // "noData" should be set if there is no data in the requested period.
-        onHistoryCallback([], { noData: true });
+        onHistoryCallback([], {
+          noData: true
+        });
         return;
       }
       let bars = [];
@@ -150,10 +159,14 @@ export default {
         }
       });
       if (firstDataRequest) {
-        lastBarsCache.set(symbolInfo.full_name, { ...bars[bars.length - 1] });
+        lastBarsCache.set(symbolInfo.full_name, {
+          ...bars[bars.length - 1]
+        });
       }
       console.log(`[getBars]: returned ${bars.length} bar(s)`);
-      onHistoryCallback(bars, { noData: false });
+      onHistoryCallback(bars, {
+        noData: false
+      });
     } catch (error) {
       console.log('[getBars]: Get error', error);
       onErrorCallback(error);
@@ -183,4 +196,3 @@ export default {
     unsubscribeFromStream(subscriberUID);
   },
 };
-  
