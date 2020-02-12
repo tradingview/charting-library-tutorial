@@ -82,15 +82,15 @@ export default {
     resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
         console.log('[resolveSymbol]: Method call', symbolName);
     },
-  getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
-    console.log('[getBars]: Method call', symbolInfo);
-  },
-  subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
-    console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID);
-  },
-  unsubscribeBars: (subscriberUID) => {
-    console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);
-  },
+    getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
+        console.log('[getBars]: Method call', symbolInfo);
+    },
+    subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
+        console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID);
+    },
+    unsubscribeBars: (subscriberUID) => {
+        console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);
+    },
 };
 ```
 
