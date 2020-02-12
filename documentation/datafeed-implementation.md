@@ -48,7 +48,7 @@ const configurationData = {
 };
 ```
 
-Our datafeed should return this configuration to the Charting Library. 
+Our datafeed should return this configuration to the Charting Library.
 Note, that the callback must be called asynchronously.
 
 [datafeed.js][datafeed-file-url]:

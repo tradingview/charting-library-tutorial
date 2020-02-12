@@ -14,6 +14,7 @@ In the example we are using ES6, that might be not supported by some old browser
     mkdir chart
     cd chart
     ```
+
 1. Clone [TradingView Charting Library][library-url]. For access instructions, see [Getting Started](getting-started.md).
 
     ```bash
@@ -57,12 +58,12 @@ Add a folder `src`, create [main.js](../src/main.js) in it and add the following
 import Datafeed from './datafeed.js';
 
 window.tvWidget = new TradingView.widget({
-  symbol: 'Bitfinex:BTC/USD', // default symbol
-  interval: '1D', // default interval
-  fullscreen: true, // displays the chart in the fullscreen mode
-  container_id: 'tv_chart_container',
-  datafeed: Datafeed,
-  library_path: '../charting_library_clonned_data/charting_library/',
+    symbol: 'Bitfinex:BTC/USD', // default symbol
+    interval: '1D', // default interval
+    fullscreen: true, // displays the chart in the fullscreen mode
+    container_id: 'tv_chart_container',
+    datafeed: Datafeed,
+    library_path: '../charting_library_clonned_data/charting_library/',
 });
 ```
 
@@ -72,15 +73,15 @@ Now you are one step away from being able to start your implementaion. Let's cre
 
 ```javascript
 export default {
-  onReady: (callback) => {
-    console.log('[onReady]: Method call');
-  },
-  searchSymbols: (userInput, exchange, symbolType, onResultReadyCallback) => {
-    console.log('[searchSymbols]: Method call');
-  },
-  resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
-    console.log('[resolveSymbol]: Method call', symbolName);
-  },
+    onReady: (callback) => {
+        console.log('[onReady]: Method call');
+    },
+    searchSymbols: (userInput, exchange, symbolType, onResultReadyCallback) => {
+        console.log('[searchSymbols]: Method call');
+    },
+    resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
+        console.log('[resolveSymbol]: Method call', symbolName);
+    },
   getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
     console.log('[getBars]: Method call', symbolInfo);
   },

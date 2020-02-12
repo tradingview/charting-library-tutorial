@@ -38,6 +38,7 @@ If you want to see the result of this tutorial right away, you need to do the fo
     ```bash
     npx serve
     ```
+
 [Deployed Preview][demo-url]
 
 ## Let's begin

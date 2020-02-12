@@ -3,6 +3,7 @@
 In this article we'll implement real-time updates via WebSocket.
 
 ## Connect
+
 To connect to the streaming API we need to add socket.io script to the page **before** main.js script.
 
 [index.html](../index.html):
@@ -45,7 +46,6 @@ export function unsubscribeFromStream() {
     // todo
 }
 ```
-
 
 And now we can use these functions in [datafeed.js][datafeed-file-url] file to make a subscription to real-time updates.
 
@@ -160,11 +160,12 @@ export function unsubscribeFromStream(subscriberUID) {
 
 Now we need to handle updates coming from the WebSocket. The response will look like this:
 
-```
+```javascript
 0~Bitfinex~BTC~USD~2~335394436~1548837377~0.36~3504.1~1261.4759999999999~1f
 ```
+
 We can parse this response string according to [fields description][cryptocompare-fields-url].
-Also, from all [event types][cryptocompare-events-url] we have to pick only trade events. 
+Also, from all [event types][cryptocompare-events-url] we have to pick only trade events.
 
 [streaming.js][streaming-file-url]:
 
@@ -234,7 +235,8 @@ function getNextDailyBarTime(barTime) {
   return date.getTime() / 1000;
 }
 ```
-and adjust `socket.on` listener: 
+
+and adjust `socket.on` listener:
 
 ```javascript
 socket.on('m', data => {
