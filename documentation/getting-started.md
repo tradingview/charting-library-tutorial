@@ -46,4 +46,4 @@ If you want to see the result of this tutorial right away, you need to do the fo
 Proceed to the [Integration](integration.md) or return to [Home Page](home.md).
 
 [tutorial-repo-url]: https://github.com/tradingview/charting-library-tutorial
-[demo-url]: https://charting-library.tradingview.com/
+[demo-url]: https://charting-library.tradingview.com/tutorial/index.html
