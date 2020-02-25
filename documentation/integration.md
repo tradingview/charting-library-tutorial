@@ -1,10 +1,10 @@
 # Integration
 
-From this article you will know the base elements of the integration and you will create a skeleton that we will use further.
+From this article you can learn the basic elements of integration and you can create a skeleton version that we can use later on.
 
 ## Browser support
 
-In the example we are using ES6, that might be not supported by some old browsers like Safari or IE11. If you want to run this sample in old browsers, you will need to transpile all modules to es5 standard or add polyfills.
+In the example we are using ES6, which might be not supported by some older browsers, such as Safari or IE11. If you want to run this sample in older browsers, you will need to transpile all modules to ES5 standard or add polyfills.
 
 ## Getting the Library
 
@@ -23,7 +23,7 @@ In the example we are using ES6, that might be not supported by some old browser
 
 ## Adding a container
 
-You need to have some DOM container that will be used for displaying of the chart.
+You need to have some DOM container that will be used to display of the chart.
 Create an initial HTML file [index.html](../index.html) in your project folder and add the following code:
 
 ```html
@@ -51,7 +51,7 @@ We've just added a script that is used to load the Charting Library and a contai
 
 ## Creating a Charting Library widget
 
-Add a folder `src`, create [main.js](../src/main.js) in it and add the following code, that creates a [Charting Library widget][widget-docs-url]. Note that the widget constructor has a lot of settings, but we are setting only mandatory ones.
+Add a folder `src`, then create [main.js](../src/main.js) in it and add code depicted below. This will create a [Charting Library widget][widget-docs-url]. Note that the widget constructor has many different settings. We will be setting only mandatory ones.
 
 ```javascript
 // Datafeed implementation, will be added later
@@ -69,7 +69,7 @@ window.tvWidget = new TradingView.widget({
 
 ## Creating a mock of the datafeed
 
-Now you are one step away from being able to start your implementaion. Let's create a datafeed that writes a message to the console when any method is called. In the next part of the tutorial we'll implement all of these methods, but now you can copy this code to [datafeed.js](../src/datafeed.js), go to the chart folder and try to run the implementation using `npx serve`.
+Now you are only one step away from being able to start your implementation. Let's create datafeed that writes a message to the console when any method is called. In the next part of the tutorial we'll implement all of these methods, but for now you can copy this code to [datafeed.js](../src/datafeed.js), go to the chart folder and try to run the implementation using `npx serve`.
 
 ```javascript
 export default {

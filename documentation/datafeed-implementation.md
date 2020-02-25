@@ -1,8 +1,8 @@
 # Datafeed Implementation
 
-## Why you need external data source
+## Why you need an external data source
 
-The Charting Library is used to display financial data, but it doesn't contain any data itself. Whatever you have, a web API, a database or a CSV file, you can display your data in the Charting Library. In this example we'll use a web API integration of  [CryptoCompare][cryptocompare-website-url] (also [CryptoCompare API][cryptocompare-api-url]).
+The Charting Library is used to display financial data, but it doesn't contain any data itself. Whatever you have, a web API, a database or a CSV file, you can display your data in the Charting Library. In this example, we'll use a web API integration of  [CryptoCompare][cryptocompare-website-url] (also [CryptoCompare API][cryptocompare-api-url]).
 
 ## How the datafeed works
 
@@ -72,7 +72,7 @@ export default {
 
 This method is used by the library to retrieve information about a specific symbol (exchange, price scale, full symbol etc.).
 
-Let's add some shared functions in `helpers.js` that we'll need to implement `resolveSymbol`. These functions are specific for using CryptoCompare and, probably, you won't need most of them for implementing your own datafeed.
+Let's add some shared functions in `helpers.js` that we'll need to implement `resolveSymbol`. These functions are specific to CryptoCompare and you most likely won't need most of them for implementing your own datafeed.
 
 [helpers.js][helpers-file-url]:
 
@@ -191,7 +191,7 @@ export function parseFullSymbol(fullSymbol) {
 }
 ```
 
-Use [Cryptocompare API][get-history-cryptocompare-api-url] and newly created function `parseFullSymbol` in `getBars` method at [datafeed.js][datafeed-file-url]. The API doesn't allow to specify a `from` date so we have to filter bars on the client-side:
+Use [Cryptocompare API][get-history-cryptocompare-api-url] and the newly created function `parseFullSymbol` in `getBars` method at [datafeed.js][datafeed-file-url]. The API doesn't allow you to specify a `from` date, so you have to filter bars on the client-side:
 
 ```javascript
 import { makeApiRequest, parseFullSymbol, generateSymbol } from './helpers.js';
@@ -245,9 +245,9 @@ export default {
 
 [Link to the doc][search-symbols-docs-url].
 
-This method is used by the Charting Library to search symbols every time a user types a text in the symbol search box. Changing symbols is also works using the symbol search.
+This method is used by the Charting Library to search symbols every time a user types a text into the symbol search box. Changing symbols also works by using the symbol search.
 
-We will request all available symbols from the API and then filter them in [datafeed.js][datafeed-file-url]. If a user is not selected an exchange, the `exchange` argument will be equal to an empty string:
+We will request all available symbols from the API and then filter them in [datafeed.js][datafeed-file-url]. If a user has not selected an exchange, the `exchange` argument will then be equal to an empty string:
 
 ```javascript
 searchSymbols: async (
