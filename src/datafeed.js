@@ -53,7 +53,6 @@ async function getAllSymbols() {
 					full_name: symbol.full,
 					description: symbol.short,
 					exchange: exchange.value,
-					ticker: symbol.full,
 					type: 'crypto',
 				};
 			});
@@ -108,7 +107,6 @@ export default {
 			type: symbolItem.type,
 			session: '24x7',
 			timezone: 'Etc/UTC',
-			ticker: symbolItem.full_name,
 			exchange: symbolItem.exchange,
 			minmov: 1,
 			pricescale: 100,
