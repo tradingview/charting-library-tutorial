@@ -15,7 +15,7 @@ The tutorial is split into three parts: setting up the widget, integration of hi
 The Charting Library is free, but its code is in the private repository on GitHub.
 Make sure that you have access to this repository: <https://github.com/tradingview/charting_library/>.
 
-If you see 404 error page, then you need to request access to this repository at <https://tradingview.com/HTML5-stock-forex-bitcoin-charting-library/>, click on the `Get Library` button inside the Technical Analysis Chart tab.
+If you see 404 error page, then you need to request access to this repository at <https://tradingview.com/HTML5-stock-forex-bitcoin-charting-library/?feature=technical-analysis-charts> and click on the `Get Library` button.
 
 ## Result
 
