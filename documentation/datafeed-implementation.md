@@ -243,7 +243,7 @@ export default {
 
 [Link to the doc][search-symbols-docs-url].
 
-This method is used by the Charting Library to search symbols every time a user types a text in the symbol search box. Changing symbols is also works using the symbol search.
+This method is used by the Charting Library to search symbols every time a user types a text in the symbol search box. Changing symbols also works using the symbol search.
 
 We will request all available symbols from the API and then filter them in [datafeed.js][datafeed-file-url]. If a user is not selected an exchange, the `exchange` argument will be equal to an empty string:
 
