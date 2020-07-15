@@ -117,7 +117,6 @@ async function getAllSymbols() {
                     full_name: symbol.full,
                     description: symbol.short,
                     exchange: exchange.value,
-                    ticker: symbol.full,
                     type: 'crypto',
                 };
             });
@@ -152,7 +151,6 @@ export default {
             type: symbolItem.type,
             session: '24x7',
             timezone: 'Etc/UTC',
-            ticker: symbolItem.full_name,
             exchange: symbolItem.exchange,
             minmov: 1,
             pricescale: 100,
@@ -245,7 +243,7 @@ export default {
 
 [Link to the doc][search-symbols-docs-url].
 
-This method is used by the Charting Library to search symbols every time a user types a text into the symbol search box. Changing symbols also works by using the symbol search.
+This method is used by the Charting Library to search symbols every time a user types a text in the symbol search box. Changing symbols also works using the symbol search.
 
 We will request all available symbols from the API and then filter them in [datafeed.js][datafeed-file-url]. If a user has not selected an exchange, the `exchange` argument will then be equal to an empty string:
 
