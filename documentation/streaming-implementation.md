@@ -1,10 +1,10 @@
 # Streaming Implementation
 
-In this article we'll implement real-time updates via WebSocket.
+In this section we'll implement real-time updates via WebSocket.
 
 ## Connect
 
-To connect to the streaming API we need to add socket.io script to the page **before** main.js script.
+To connect to the streaming API, we first need to add socket.io script to the page **before** main.js script.
 
 [index.html](../index.html):
 
@@ -19,7 +19,7 @@ To connect to the streaming API we need to add socket.io script to the page **be
 </html>
 ```
 
-Let's create a new file called [streaming.js][streaming-file-url], where we'll implement a connection to the WebSocket and streaming real-time updates.
+Let's create a new file called [streaming.js][streaming-file-url], where we'll implement a connection to the WebSocket.
 
 [streaming.js][streaming-file-url]:
 
@@ -47,7 +47,7 @@ export function unsubscribeFromStream() {
 }
 ```
 
-And now we can use these functions in [datafeed.js][datafeed-file-url] file to make a subscription to real-time updates.
+Now we can use these functions in our [datafeed.js][datafeed-file-url] file to make a subscription to real-time updates.
 
 - [subscribeBars documentation][subscribe-bars-docs-url]
 - [unsubscribeBars documentation][unsubscribe-bars-docs-url]
@@ -164,8 +164,8 @@ Now we need to handle updates coming from the WebSocket. The response will look 
 0~Bitfinex~BTC~USD~2~335394436~1548837377~0.36~3504.1~1261.4759999999999~1f
 ```
 
-We can parse this response string according to [fields description][cryptocompare-fields-url].
-Also, from all [event types][cryptocompare-events-url] we have to pick only trade events.
+We can parse this response string according to the [field description][cryptocompare-fields-url].
+In addition, we now have to pick only trade events from all [event types][cryptocompare-events-url].
 
 [streaming.js][streaming-file-url]:
 
@@ -211,7 +211,7 @@ socket.on('m', data => {
 });
 ```
 
-Before running the project, open your [datafeed.js][datafeed-file-url] file and adjust your `GetBars` method to save the last bar data for the current symbol. We wouldn't need this, if we had a more accurate way to check for the new bar or if we had a bars streaming API.
+Before running the project, open your [datafeed.js][datafeed-file-url] file and adjust your `GetBars` method to save the last bar data for the current symbol. We wouldn't need this if we had a more accurate way to check for the new bar or if we had a bars streaming API.
 
 ```javascript
 //...
@@ -224,8 +224,8 @@ console.log(`[getBars]: returned ${bars.length} bar(s)`);
 //...
 ```
 
-CryptoCompare provides a streaming of ticks, but not bars. So, let's roughly check that the new trade is related to the new daily bar. Please note, you may need more comprehensive check here for the production version.
-Adjust code in [streaming.js][streaming-file-url].
+CryptoCompare provides a streaming of ticks, but not bars. So, let's roughly check that the new trade is related to the new daily bar. Please note, you may need a more comprehensive check here for the production version.
+You can adjust your code in [streaming.js][streaming-file-url].
 Add an utility function:
 
 ```javascript
@@ -270,13 +270,13 @@ socket.on('m', data => {
 
 ## Run
 
-We've implemented a datafeed with searching/resolving of symbols, loading historical data and providing real-time updates via WebSocket.
+We've implemented datafeed with searching/resolving symbols, loading historical data and providing real-time updates via WebSocket.
 
 Now you can go upper to the `chart` folder, run `npx serve` and see how it works.
 
-The full code of this example you can find in the [Tutorial Repo][tutorial-repo-url].
+You can find the full code of this example in [Tutorial Repo][tutorial-repo-url].
 
-:warning: Note: We cannot guarantee that СryptoCompare works in your region. If you see `ERR_CONNECTION_REFUSED` error, try to use proxy/vpn.
+:warning: Note: We cannot guarantee that СryptoCompare works in your region. If you see `ERR_CONNECTION_REFUSED` error, try to use a proxy/vpn.
 
 Return to [Home Page](home.md).
 

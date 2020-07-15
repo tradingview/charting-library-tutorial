@@ -2,13 +2,13 @@
 
 ## About this tutorial
 
-TradingView Charting Library is a powerful instrument for displaying financial data. It has different technical analysis tools including about 100 indicators and more than 70 drawings. Under the hood it can process and display dozens thousands of data points, build custom resolutions and compare data from different time zones.
+TradingView’s Charting Library is a powerful instrument for displaying financial data. It has different technical analysis tools including, but not limited to, about 100 indicators and over 70 drawings. Under the hood, the Charting Library can process and display thousands of data points, build custom resolutions and compare data from different time zones.
 
-After reading this tutorial you will know how to connect data to the Charting Library, including streaming of real-time data.
+After reading through this tutorial, you will know how to connect data to the Charting Library, including how to stream real-time data.
 
 As an example, we will connect the Charting Library to CryptoCompare which provides data from different crypto exchanges via a single API.
 
-The tutorial is split into three parts: setting up the widget, integration of historical data and realtime updates using WebSocket.
+The tutorial is split into three main parts: 1) setting up the widget, 2) integrating historical data and 3) real-time updates using WebSocket.
 
 ## Before we begin
 
@@ -17,9 +17,9 @@ Make sure that you have access to this repository: <https://github.com/tradingvi
 
 If you see 404 error page, then you need to request access to this repository at <https://tradingview.com/HTML5-stock-forex-bitcoin-charting-library/?feature=technical-analysis-charts> and click on the `Get Library` button.
 
-## Result
+## Results
 
-If you want to see the result of this tutorial right away, you need to do the following steps:
+If you want to see the results of this tutorial right away, you will need to take the following next steps:
 
 1. Clone the [Tutorial Repo][tutorial-repo-url]. Please note, for the real project it is better to to use this repo as a submodule in yours.
 
