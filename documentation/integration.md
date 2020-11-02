@@ -33,7 +33,7 @@ Create an initial HTML file [index.html](../index.html) in your project folder a
         <title>TradingView Charting Library example</title>
         <script
             type="text/javascript"
-            src="charting_library_clonned_data/charting_library/charting_library.min.js">
+            src="charting_library_clonned_data/charting_library/charting_library.js">
         </script>
 
         <!-- Custom datafeed module. -->
