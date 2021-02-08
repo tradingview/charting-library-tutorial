@@ -102,6 +102,7 @@ export default {
 			return;
 		}
 		const symbolInfo = {
+			ticker: symbolItem.full_name,
 			name: symbolItem.symbol,
 			description: symbolItem.description,
 			type: symbolItem.type,
