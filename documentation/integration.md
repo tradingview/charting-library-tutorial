@@ -82,7 +82,7 @@ export default {
     resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
         console.log('[resolveSymbol]: Method call', symbolName);
     },
-    getBars: (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
+    getBars: (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
         console.log('[getBars]: Method call', symbolInfo);
     },
     subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {

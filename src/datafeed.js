@@ -123,7 +123,8 @@ export default {
 		onSymbolResolvedCallback(symbolInfo);
 	},
 
-	getBars: async (symbolInfo, resolution, from, to, onHistoryCallback, onErrorCallback, firstDataRequest) => {
+	getBars: async (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
+		const { from, to, firstDataRequest } = periodParams;
 		console.log('[getBars]: Method call', symbolInfo, resolution, from, to);
 		const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
 		const urlParameters = {
