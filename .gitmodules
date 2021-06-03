@@ -1,3 +1,3 @@
 [submodule "charting_library_clonned_data"]
 	path = charting_library_clonned_data
-	url = https://github.com/tradingview/charting_library.git
+	url = git@github.com:tradingview/charting_library.git
