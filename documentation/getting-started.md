@@ -21,7 +21,7 @@ If you see 404 error page, then you need to request access to this repository at
 
 If you want to see the results of this tutorial right away, you will need to take the following next steps:
 
-1. Clone the [Tutorial Repo][tutorial-repo-url]. Please note, for the real project it is better to to use this repo as a submodule in yours.
+1. Clone the [Tutorial Repo][tutorial-repo-url]. Please note, for the real project it is better to use this repo as a submodule in yours.
 
     ```bash
     git clone https://github.com/tradingview/charting-library-tutorial.git
