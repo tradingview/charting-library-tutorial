@@ -18,13 +18,14 @@ In the example we are using ES6, which might be not supported by some older brow
 1. Clone [TradingView Charting Library][library-url]. For access instructions, see [Getting Started](getting-started.md).
 
     ```bash
-    git clone https://github.com/tradingview/charting_library charting_library_clonned_data
+    git clone https://github.com/tradingview/charting_library charting_library_cloned_data
     ```
 
 ## Adding a container
 
 You need to have some DOM container that will be used to display of the chart.
-Create an initial HTML file [index.html](../index.html) in your project folder and add the following code:
+
+Create an initial HTML file [index.html](../index.html) in your project folder (aka chart) and add the following code:
 
 ```html
 <!DOCTYPE HTML>
@@ -33,7 +34,7 @@ Create an initial HTML file [index.html](../index.html) in your project folder a
         <title>TradingView Charting Library example</title>
         <script
             type="text/javascript"
-            src="charting_library_clonned_data/charting_library/charting_library.js">
+            src="charting_library_cloned_data/charting_library/charting_library.js">
         </script>
 
         <!-- Custom datafeed module. -->
@@ -63,13 +64,15 @@ window.tvWidget = new TradingView.widget({
     fullscreen: true, // displays the chart in the fullscreen mode
     container: 'tv_chart_container',
     datafeed: Datafeed,
-    library_path: '../charting_library_clonned_data/charting_library/',
+    library_path: '../charting_library_cloned_data/charting_library/',
 });
 ```
 
 ## Creating a mock of the datafeed
 
-Now you are only one step away from being able to start your implementation. Let's create datafeed that writes a message to the console when any method is called. In the next part of the tutorial we'll implement all of these methods, but for now you can copy this code to [datafeed.js](../src/datafeed.js), go to the chart folder and try to run the implementation using `npx serve`.
+Now you are only one step away from being able to start your implementation. Let's create datafeed that writes a message to the console when any method is called.
+
+In the next part of the tutorial we'll implement all of these methods, but for now you can copy this code to [datafeed.js](../src/datafeed.js), go to the chart folder and try to run the implementation using `npx serve`.
 
 ```javascript
 export default {
@@ -79,14 +82,14 @@ export default {
     searchSymbols: (userInput, exchange, symbolType, onResultReadyCallback) => {
         console.log('[searchSymbols]: Method call');
     },
-    resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback) => {
+    resolveSymbol: (symbolName, onSymbolResolvedCallback, onResolveErrorCallback, extension) => {
         console.log('[resolveSymbol]: Method call', symbolName);
     },
     getBars: (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
         console.log('[getBars]: Method call', symbolInfo);
     },
-    subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscribeUID, onResetCacheNeededCallback) => {
-        console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID);
+    subscribeBars: (symbolInfo, resolution, onRealtimeCallback, subscriberUID, onResetCacheNeededCallback) => {
+        console.log('[subscribeBars]: Method call with subscriberUID:', subscriberUID);
     },
     unsubscribeBars: (subscriberUID) => {
         console.log('[unsubscribeBars]: Method call with subscriberUID:', subscriberUID);

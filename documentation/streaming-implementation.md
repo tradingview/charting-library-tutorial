@@ -13,7 +13,7 @@ To connect to the streaming API, we first need to add socket.io script to the pa
 <html>
     <head>
         <!-- ... -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
         <!-- ... -->
     </body>
 </html>
@@ -65,15 +65,15 @@ export default {
         symbolInfo,
         resolution,
         onRealtimeCallback,
-        subscribeUID,
+        subscriberUID,
         onResetCacheNeededCallback
     ) => {
-        console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID);
+        console.log('[subscribeBars]: Method call with subscriberUID:', subscriberUID);
         subscribeOnStream(
             symbolInfo,
             resolution,
             onRealtimeCallback,
-            subscribeUID,
+            subscriberUID,
             onResetCacheNeededCallback,
             lastBarsCache.get(symbolInfo.full_name)
         );
@@ -101,14 +101,14 @@ export function subscribeOnStream(
     symbolInfo,
     resolution,
     onRealtimeCallback,
-    subscribeUID,
+    subscriberUID,
     onResetCacheNeededCallback,
     lastDailyBar
 ) {
     const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
     const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
     const handler = {
-        id: subscribeUID,
+        id: subscriberUID,
         callback: onRealtimeCallback,
     };
     let subscriptionItem = channelToSubscription.get(channelString);
@@ -118,7 +118,7 @@ export function subscribeOnStream(
         return;
     }
     subscriptionItem = {
-        subscribeUID,
+        subscriberUID,
         resolution,
         lastDailyBar,
         handlers: [handler],
@@ -158,14 +158,22 @@ export function unsubscribeFromStream(subscriberUID) {
 
 ## Handle updates
 
-Now we need to handle updates coming from the WebSocket. The response will look like this:
+Warning
+
+CryptoCompare is now relying on an API key to request some of their stream data.
+
+At the time of writing it's not mandatory to use it and the code provided still works.
+In case you get an error message, please visit their WebSockets documentation [page](https://min-api.cryptocompare.com/documentation/websockets)
+
+Now we need to handle updates coming from the WebSocket.
+
+At the time of writing the response looks like this:
 
 ```javascript
 0~Bitfinex~BTC~USD~2~335394436~1548837377~0.36~3504.1~1261.4759999999999~1f
 ```
 
-We can parse this response string according to the [field description][cryptocompare-fields-url].
-In addition, we now have to pick only trade events from all [event types][cryptocompare-events-url].
+You can find the documentation for WebSockets [here](https://min-api.cryptocompare.com/documentation/websockets).
 
 [streaming.js][streaming-file-url]:
 
@@ -211,7 +219,7 @@ socket.on('m', data => {
 });
 ```
 
-Before running the project, open your [datafeed.js][datafeed-file-url] file and adjust your `GetBars` method to save the last bar data for the current symbol. We wouldn't need this if we had a more accurate way to check for the new bar or if we had a bars streaming API.
+Before running the project, open your [datafeed.js][datafeed-file-url] file and adjust your `getBars` method to save the last bar data for the current symbol. We wouldn't need this if we had a more accurate way to check for the new bar or if we had a bars streaming API.
 
 ```javascript
 //...
@@ -224,9 +232,11 @@ console.log(`[getBars]: returned ${bars.length} bar(s)`);
 //...
 ```
 
-CryptoCompare provides a streaming of ticks, but not bars. So, let's roughly check that the new trade is related to the new daily bar. Please note, you may need a more comprehensive check here for the production version.
-You can adjust your code in [streaming.js][streaming-file-url].
-Add an utility function:
+CryptoCompare provides a streaming of ticks, but not bars. So, let's roughly check that the new trade is related to the new daily bar.
+
+Please note you may need a more comprehensive check here for the production version.
+
+You can adjust your code in [streaming.js][streaming-file-url] by adding an utility function:
 
 ```javascript
 function getNextDailyBarTime(barTime) {
@@ -272,7 +282,7 @@ socket.on('m', data => {
 
 We've implemented datafeed with searching/resolving symbols, loading historical data and providing real-time updates via WebSocket.
 
-Now you can go upper to the `chart` folder, run `npx serve` and see how it works.
+Now you can go upper to the `chart` folder and run `npx serve` (if not already done before) and see how it works.
 
 You can find the full code of this example in [Tutorial Repo][tutorial-repo-url].
 
@@ -281,8 +291,6 @@ You can find the full code of this example in [Tutorial Repo][tutorial-repo-url]
 Return to [Home Page](home.md).
 
 [tutorial-repo-url]: https://github.com/tradingview/charting-library-tutorial
-[cryptocompare-fields-url]: https://github.com/cryptoqween/cryptoqween.github.io/blob/d6c16d53717c4d4e4880d3f40284ee6eacb9e832/streamer/ccc-streamer-utilities.js#L196-L207
-[cryptocompare-events-url]: https://github.com/cryptoqween/cryptoqween.github.io/blob/d6c16d53717c4d4e4880d3f40284ee6eacb9e832/streamer/ccc-streamer-utilities.js#L6
 [subscribe-bars-docs-url]: https://github.com/tradingview/charting_library/wiki/JS-Api#subscribebarssymbolinfo-resolution-onrealtimecallback-subscriberuid-onresetcacheneededcallback
 [unsubscribe-bars-docs-url]: https://github.com/tradingview/charting_library/wiki/JS-Api#unsubscribebarssubscriberuid
 

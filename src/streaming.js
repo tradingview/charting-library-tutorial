@@ -78,14 +78,14 @@ export function subscribeOnStream(
 	symbolInfo,
 	resolution,
 	onRealtimeCallback,
-	subscribeUID,
+	subscriberUID,
 	onResetCacheNeededCallback,
 	lastDailyBar,
 ) {
 	const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
 	const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
 	const handler = {
-		id: subscribeUID,
+		id: subscriberUID,
 		callback: onRealtimeCallback,
 	};
 	let subscriptionItem = channelToSubscription.get(channelString);
@@ -95,7 +95,7 @@ export function subscribeOnStream(
 		return;
 	}
 	subscriptionItem = {
-		subscribeUID,
+		subscriberUID,
 		resolution,
 		lastDailyBar,
 		handlers: [handler],
