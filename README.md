@@ -1,4 +1,4 @@
-# TradingView Charting Library Tutorial
+# Charting Library — How to Implement Datafeed
 
 ## What is Charting Library
 
