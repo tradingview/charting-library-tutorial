@@ -1,0 +1,16 @@
+/.idea/*
+/.vscode/*
+.vscode/*
+*.sublime-project
+*.sublime-workspace
+node_modules/
+npm-debug.log*
+.DS_Store
+/.vs/*
+package-lock.json
+/bin/*
+*.sln
+*.csproj
+*.pyproj
+*.user
+

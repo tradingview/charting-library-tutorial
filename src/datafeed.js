@@ -90,6 +90,7 @@ export default {
 		symbolName,
 		onSymbolResolvedCallback,
 		onResolveErrorCallback,
+		extension
 	) => {
 		console.log('[resolveSymbol]: Method call', symbolName);
 		const symbols = await getAllSymbols();
@@ -177,15 +178,15 @@ export default {
 		symbolInfo,
 		resolution,
 		onRealtimeCallback,
-		subscribeUID,
+		subscriberUID,
 		onResetCacheNeededCallback,
 	) => {
-		console.log('[subscribeBars]: Method call with subscribeUID:', subscribeUID);
+		console.log('[subscribeBars]: Method call with subscriberUID:', subscriberUID);
 		subscribeOnStream(
 			symbolInfo,
 			resolution,
 			onRealtimeCallback,
-			subscribeUID,
+			subscriberUID,
 			onResetCacheNeededCallback,
 			lastBarsCache.get(symbolInfo.full_name),
 		);

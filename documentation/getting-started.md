@@ -8,14 +8,19 @@ After reading through this tutorial, you will know how to connect data to the Ch
 
 As an example, we will connect the Charting Library to CryptoCompare which provides data from different crypto exchanges via a single API.
 
-The tutorial is split into three main parts: 1) setting up the widget, 2) integrating historical data and 3) real-time updates using WebSocket.
+The tutorial is split into three main parts:
+
+1) setting up the widget
+2) integrating historical data
+3) real-time updates using WebSocket.
 
 ## Before we begin
 
 The Charting Library is free, but its code is in the private repository on GitHub.
+
 Make sure that you have access to this repository: <https://github.com/tradingview/charting_library/>.
 
-If you see 404 error page, then you need to request access to this repository at <https://tradingview.com/HTML5-stock-forex-bitcoin-charting-library/?feature=technical-analysis-charts> and click on the `Get Library` button.
+If you see a 404 error page, then you need to request access to this repository on our [dedicated page](https://tradingview.com/HTML5-stock-forex-bitcoin-charting-library/?feature=technical-analysis-charts) and click on the `Get library` button.
 
 ## Results
 
