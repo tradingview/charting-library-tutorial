@@ -2,17 +2,22 @@
 <html>
     <head>
         <title>TradingView Charting Library example</title>
+        
+        <!-- The script which loads Charting Library -->
         <script
             type="text/javascript"
             src="charting_library_cloned_data/charting_library/charting_library.js">
         </script>
+
+        <!-- The script for CryptoCompare WebSocket -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
-        <!-- Custom datafeed module. -->
+        
+        <!-- Custom datafeed module -->
         <script type="module" src="src/main.js"></script>
     </head>
     <body style="margin:0px;">
+        <!-- A container for the Charting Library widget -->
         <div id="tv_chart_container">
-            <!-- This div will contain the Charting Library widget. -->
         </div>
     </body>
 </html>
