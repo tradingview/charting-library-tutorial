@@ -1,4 +1,4 @@
-// Datafeed implementation that you will add later
+// Datafeed implementation
 import Datafeed from './datafeed.js';
 
 window.tvWidget = new TradingView.widget({
