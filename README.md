@@ -7,7 +7,7 @@
 
 ## What is Charting Library
 
-Charting library is a standalone solution that you can download, host on your servers, connect your own data to,
+Charting Library is a standalone solution that you can download, host on your servers, connect your own data to,
 and use in your site or app for free.
 Learn more about Charting Library on the [TradingView website].
 
