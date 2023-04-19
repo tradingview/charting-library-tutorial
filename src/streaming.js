@@ -30,7 +30,7 @@ socket.on('m', data => {
 	] = data.split('~');
 
 	if (parseInt(eventTypeStr) !== 0) {
-		// Skip all non-TRADE events
+		// Skip all non-trading events
 		return;
 	}
 	const tradePrice = parseFloat(tradePriceStr);
