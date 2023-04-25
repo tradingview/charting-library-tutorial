@@ -16,5 +16,5 @@ Learn more about Charting Library on the [TradingView website].
 This tutorial explains how to implement real-time data streaming to Charting Library step-by-step using the Datafeed API.
 As an example, the tutorial describes connection via free CryptoCompare API that provides data from different crypto exchanges.
 
-[Charting Library documentation]: https://www.tradingview.com/charting-library-docs/latest/tutorials/implement_datafeed_tutorial/intro
+[Charting Library documentation]: https://www.tradingview.com/charting-library-docs/latest/tutorials/implement_datafeed_tutorial/
 [TradingView website]: https://www.tradingview.com/HTML5-stock-forex-bitcoin-charting-library/?feature=technical-analysis-charts
