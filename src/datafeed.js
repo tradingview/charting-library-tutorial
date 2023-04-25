@@ -10,34 +10,34 @@ import {
 
 const lastBarsCache = new Map();
 
+// DatafeedConfiguration implementation
 const configurationData = {
+	// Represents the resolutions for bars supported by your datafeed
 	supported_resolutions: ['1D', '1W', '1M'],
+	
+	// The `exchanges` arguments are used for the `searchSymbols` method if a user selects the exchange
 	exchanges: [{
 		value: 'Bitfinex',
 		name: 'Bitfinex',
 		desc: 'Bitfinex',
 	},
 	{
-		// `exchange` argument for the `searchSymbols` method, if a user selects this exchange
 		value: 'Kraken',
-
-		// filter name
+		// Filter name
 		name: 'Kraken',
-
-		// full exchange name displayed in the filter popup
+		// Full exchange name displayed in the filter popup
 		desc: 'Kraken bitcoin exchange',
 	},
 	],
+	// The `symbols_types` arguments are used for the `searchSymbols` method if a user selects this symbol type
 	symbols_types: [{
 		name: 'crypto',
-
-		// `symbolType` argument for the `searchSymbols` method, if a user selects this symbol type
 		value: 'crypto',
 	},
-		// ...
 	],
 };
 
+// Obtains all symbols for all exchanges supported by CryptoCompare API
 async function getAllSymbols() {
 	const data = await makeApiRequest('data/v3/all/exchanges');
 	let allSymbols = [];
@@ -102,6 +102,7 @@ export default {
 			onResolveErrorCallback('cannot resolve symbol');
 			return;
 		}
+		// Symbol information object
 		const symbolInfo = {
 			ticker: symbolItem.full_name,
 			name: symbolItem.symbol,
@@ -141,7 +142,7 @@ export default {
 		try {
 			const data = await makeApiRequest(`data/histoday?${query}`);
 			if (data.Response && data.Response === 'Error' || data.Data.length === 0) {
-				// "noData" should be set if there is no data in the requested period.
+				// "noData" should be set if there is no data in the requested period
 				onHistoryCallback([], {
 					noData: true,
 				});

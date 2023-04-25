@@ -30,7 +30,7 @@ socket.on('m', data => {
 	] = data.split('~');
 
 	if (parseInt(eventTypeStr) !== 0) {
-		// skip all non-TRADE events
+		// Skip all non-trading events
 		return;
 	}
 	const tradePrice = parseFloat(tradePriceStr);
@@ -64,7 +64,7 @@ socket.on('m', data => {
 	}
 	subscriptionItem.lastDailyBar = bar;
 
-	// send data to every subscriber of that symbol
+	// Send data to every subscriber of that symbol
 	subscriptionItem.handlers.forEach(handler => handler.callback(bar));
 });
 
@@ -90,7 +90,7 @@ export function subscribeOnStream(
 	};
 	let subscriptionItem = channelToSubscription.get(channelString);
 	if (subscriptionItem) {
-		// already subscribed to the channel, use the existing subscription
+		// Already subscribed to the channel, use the existing subscription
 		subscriptionItem.handlers.push(handler);
 		return;
 	}
@@ -106,18 +106,18 @@ export function subscribeOnStream(
 }
 
 export function unsubscribeFromStream(subscriberUID) {
-	// find a subscription with id === subscriberUID
+	// Find a subscription with id === subscriberUID
 	for (const channelString of channelToSubscription.keys()) {
 		const subscriptionItem = channelToSubscription.get(channelString);
 		const handlerIndex = subscriptionItem.handlers
 			.findIndex(handler => handler.id === subscriberUID);
 
 		if (handlerIndex !== -1) {
-			// remove from handlers
+			// Remove from handlers
 			subscriptionItem.handlers.splice(handlerIndex, 1);
 
 			if (subscriptionItem.handlers.length === 0) {
-				// unsubscribe from the channel, if it was the last handler
+				// Unsubscribe from the channel if it was the last handler
 				console.log('[unsubscribeBars]: Unsubscribe from streaming. Channel:', channelString);
 				socket.emit('SubRemove', { subs: [channelString] });
 				channelToSubscription.delete(channelString);
