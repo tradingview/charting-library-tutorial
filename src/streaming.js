@@ -1,33 +1,33 @@
-import { parseFullSymbol } from './helpers.js';
+import { parseFullSymbol, apiKey } from './helpers.js';
 
-const socket = io('wss://streamer.cryptocompare.com');
+const socket = new WebSocket(
+	'wss://streamer.cryptocompare.com/v2?api_key=' + apiKey
+);
 const channelToSubscription = new Map();
 
-socket.on('connect', () => {
+socket.addEventListener('open', () => {
 	console.log('[socket] Connected');
 });
 
-socket.on('disconnect', (reason) => {
+socket.addEventListener('close', (reason) => {
 	console.log('[socket] Disconnected:', reason);
 });
 
-socket.on('error', (error) => {
+socket.addEventListener('error', (error) => {
 	console.log('[socket] Error:', error);
 });
 
-socket.on('m', data => {
+socket.addEventListener('message', (event) => {
+	const data = JSON.parse(event.data);
 	console.log('[socket] Message:', data);
-	const [
-		eventTypeStr,
-		exchange,
-		fromSymbol,
-		toSymbol,
-		,
-		,
-		tradeTimeStr,
-		,
-		tradePriceStr,
-	] = data.split('~');
+	const {
+		TYPE: eventTypeStr,
+		M: exchange,
+		FSYM: fromSymbol,
+		TSYM: toSymbol,
+		TS: tradeTimeStr,
+		P: tradePriceStr,
+	} = data;
 
 	if (parseInt(eventTypeStr) !== 0) {
 		// Skip all non-trading events
@@ -65,7 +65,7 @@ socket.on('m', data => {
 	subscriptionItem.lastDailyBar = bar;
 
 	// Send data to every subscriber of that symbol
-	subscriptionItem.handlers.forEach(handler => handler.callback(bar));
+	subscriptionItem.handlers.forEach((handler) => handler.callback(bar));
 });
 
 function getNextDailyBarTime(barTime) {
@@ -80,7 +80,7 @@ export function subscribeOnStream(
 	onRealtimeCallback,
 	subscriberUID,
 	onResetCacheNeededCallback,
-	lastDailyBar,
+	lastDailyBar
 ) {
 	const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
 	const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
@@ -101,16 +101,24 @@ export function subscribeOnStream(
 		handlers: [handler],
 	};
 	channelToSubscription.set(channelString, subscriptionItem);
-	console.log('[subscribeBars]: Subscribe to streaming. Channel:', channelString);
-	socket.emit('SubAdd', { subs: [channelString] });
+	console.log(
+		'[subscribeBars]: Subscribe to streaming. Channel:',
+		channelString
+	);
+	const subRequest = {
+		action: 'SubAdd',
+		subs: [channelString],
+	};
+	socket.send(JSON.stringify(subRequest));
 }
 
 export function unsubscribeFromStream(subscriberUID) {
 	// Find a subscription with id === subscriberUID
 	for (const channelString of channelToSubscription.keys()) {
 		const subscriptionItem = channelToSubscription.get(channelString);
-		const handlerIndex = subscriptionItem.handlers
-			.findIndex(handler => handler.id === subscriberUID);
+		const handlerIndex = subscriptionItem.handlers.findIndex(
+			(handler) => handler.id === subscriberUID
+		);
 
 		if (handlerIndex !== -1) {
 			// Remove from handlers
@@ -118,8 +126,15 @@ export function unsubscribeFromStream(subscriberUID) {
 
 			if (subscriptionItem.handlers.length === 0) {
 				// Unsubscribe from the channel if it was the last handler
-				console.log('[unsubscribeBars]: Unsubscribe from streaming. Channel:', channelString);
-				socket.emit('SubRemove', { subs: [channelString] });
+				console.log(
+					'[unsubscribeBars]: Unsubscribe from streaming. Channel:',
+					channelString
+				);
+				const subRequest = {
+					action: 'SubRemove',
+					subs: [channelString],
+				};
+				socket.send(JSON.stringify(subRequest));
 				channelToSubscription.delete(channelString);
 				break;
 			}
