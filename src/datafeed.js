@@ -50,7 +50,6 @@ async function getAllSymbols() {
 				const symbol = generateSymbol(exchange.value, leftPairPart, rightPairPart);
 				return {
 					symbol: symbol.short,
-					full_name: symbol.full,
 					description: symbol.short,
 					exchange: exchange.value,
 					type: 'crypto',
@@ -78,7 +77,8 @@ export default {
 		const symbols = await getAllSymbols();
 		const newSymbols = symbols.filter(symbol => {
 			const isExchangeValid = exchange === '' || symbol.exchange === exchange;
-			const isFullSymbolContainsInput = symbol.full_name
+			const fullName = `${symbol.exchange}:${symbol.symbol}`;
+			const isFullSymbolContainsInput = fullName
 				.toLowerCase()
 				.indexOf(userInput.toLowerCase()) !== -1;
 			return isExchangeValid && isFullSymbolContainsInput;
@@ -95,8 +95,12 @@ export default {
 		console.log('[resolveSymbol]: Method call', symbolName);
 		const symbols = await getAllSymbols();
 		const symbolItem = symbols.find(({
-			full_name,
-		}) => full_name === symbolName);
+			exchange,
+			symbol
+		}) => {
+			const fullName = `${exchange}:${symbol}`;
+			return fullName === symbolName
+		});
 		if (!symbolItem) {
 			console.log('[resolveSymbol]: Cannot resolve symbol', symbolName);
 			onResolveErrorCallback('cannot resolve symbol');
@@ -104,7 +108,7 @@ export default {
 		}
 		// Symbol information object
 		const symbolInfo = {
-			ticker: symbolItem.full_name,
+			ticker: symbolItem.symbol,
 			name: symbolItem.symbol,
 			description: symbolItem.description,
 			type: symbolItem.type,
