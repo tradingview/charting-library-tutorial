@@ -50,6 +50,7 @@ async function getAllSymbols() {
 				const symbol = generateSymbol(exchange.value, leftPairPart, rightPairPart);
 				return {
 					symbol: symbol.short,
+					ticker: symbol.short,
 					description: symbol.short,
 					exchange: exchange.value,
 					type: 'crypto',
@@ -77,7 +78,7 @@ export default {
 		const symbols = await getAllSymbols();
 		const newSymbols = symbols.filter(symbol => {
 			const isExchangeValid = exchange === '' || symbol.exchange === exchange;
-			const fullName = `${symbol.exchange}:${symbol.symbol}`;
+			const fullName = `${symbol.exchange}:${symbol.ticker}`;
 			const isFullSymbolContainsInput = fullName
 				.toLowerCase()
 				.indexOf(userInput.toLowerCase()) !== -1;
@@ -96,9 +97,9 @@ export default {
 		const symbols = await getAllSymbols();
 		const symbolItem = symbols.find(({
 			exchange,
-			symbol
+			ticker
 		}) => {
-			const fullName = `${exchange}:${symbol}`;
+			const fullName = `${exchange}:${ticker}`;
 			return fullName === symbolName
 		});
 		if (!symbolItem) {
@@ -108,7 +109,7 @@ export default {
 		}
 		// Symbol information object
 		const symbolInfo = {
-			ticker: symbolItem.symbol,
+			ticker: symbolItem.ticker,
 			name: symbolItem.symbol,
 			description: symbolItem.description,
 			type: symbolItem.type,
