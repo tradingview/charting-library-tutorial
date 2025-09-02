@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains sample code for the [Datafeed API tutorial] that explains how to implement real-time data streaming to [Advanced Charts].
+This repository contains sample code for the [Datafeed API tutorial], which demonstrates how to implement real-time data streaming in [Advanced Charts].
 As an example, the tutorial describes connection via free [CryptoCompare API] that provides data from different crypto exchanges.
 
 > [!NOTE]
