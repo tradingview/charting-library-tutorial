@@ -3,7 +3,7 @@
 ## Overview
 
 This repository contains sample code for the [Datafeed API tutorial], which demonstrates how to implement real-time data streaming in [Advanced Charts].
-As an example, the tutorial describes connection via free [CryptoCompare API] that provides data from different crypto exchanges.
+As an example, the tutorial describes a connection via the free [CryptoCompare] API that provides data from different crypto exchanges.
 
 > [!NOTE]
 > Advanced Charts is a standalone client-side library that is used to display financial charts, prices, and technical analysis tools.
@@ -13,7 +13,7 @@ As an example, the tutorial describes connection via free [CryptoCompare API] th
 
 - The [Advanced Charts repository] is private.
 Refer to [Getting Access] for more information on how to get the library.
-- To use [CryptoCompare API], you should create an account and generate a free API key. For more information, refer to the [CryptoCompare documentation](https://www.cryptocompare.com/coins/guides/how-to-use-our-api/).
+- To use the [CryptoCompare] API, you should create an account and generate a free API key. For more information, refer to the [CryptoCompare documentation](https://www.cryptocompare.com/coins/guides/how-to-use-our-api/).
 
 ## How to run
 
@@ -54,7 +54,7 @@ The latest version introduces several key improvements:
 
 [Advanced Charts]: https://www.tradingview.com/charting-library-docs/
 [Datafeed API tutorial]: https://www.tradingview.com/charting-library-docs/latest/tutorials/implement_datafeed_tutorial/
-[CryptoCompare API]: https://www.cryptocompare.com/
+[CryptoCompare]: https://www.cryptocompare.com/
 [TradingView website]: https://www.tradingview.com/HTML5-stock-forex-bitcoin-charting-library/?feature=technical-analysis-charts
 [Advanced Charts repository]: https://github.com/tradingview/charting_library
 [Getting Access]: https://www.tradingview.com/charting-library-docs/latest/getting_started/quick-start#getting-access
