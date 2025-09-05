@@ -15,7 +15,7 @@ tvWidget.onChartReady(() => {
 	console.log('Chart is ready');
 	const chart = tvWidget.activeChart();
 
-	// subscribe to interval changes and then clear cache
+	// Subscribe to interval changes and then clear cache
 	chart.onIntervalChanged().subscribe(null, () => {
 		tvWidget.resetCache();
 		chart.resetData();

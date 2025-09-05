@@ -15,7 +15,7 @@ const lastBarsCache = new Map();
 // DatafeedConfiguration implementation
 const configurationData = {
 	// Represents the resolutions for bars supported by your datafeed
-	supported_resolutions: ['1', "5", "15", '60', '180', '1D', '1W', '1M'],
+	supported_resolutions: ['1', '5', '15', '60', '180', '1D', '1W', '1M'],
 
 	// The `exchanges` arguments are used for the `searchSymbols` method if a user selects the exchange
 	exchanges: [{
@@ -138,7 +138,7 @@ export default {
 		const parsedSymbol = parseFullSymbol(symbolInfo.ticker);
 
 		let endpoint;
-		// Determine the correct endpoint based on the base resolution requested by the library
+		// Determine the correct endpoint based on the resolution requested by the library
 		if (resolution === '1D') {
 			endpoint = 'histoday';
 		} else if (resolution === '60') {
@@ -158,7 +158,7 @@ export default {
 			limit: 2000,
 		};
 
-	    // example of historical OHLC 5 minute data request: 
+	    // Example of historical OHLC 5 minute data request: 
 		// https://min-api.cryptocompare.com/data/v2/histominute?fsym=ETH&tsym=USDT&limit=10&e=Binance&api_key="API_KEY"
 		const query = Object.keys(urlParameters)
 			.map(name => `${name}=${encodeURIComponent(urlParameters[name])}`)

@@ -3,7 +3,7 @@ import { parseFullSymbol, apiKey } from './helpers.js';
 const socket = new WebSocket(
 	'wss://streamer.cryptocompare.com/v2?api_key=' + apiKey
 );
-// example ▼ {"TYPE":"20","MESSAGE":"STREAMERWELCOME","SERVER_UPTIME_SECONDS":1262462,"SERVER_NAME":"08","SERVER_TIME_MS":1753184197855,"CLIENT_ID":2561280,"DATA_FORMAT":"JSON","SOCKET_ID":"7zUlXfWU+zH7uX7ViDS2","SOCKETS_ACTIVE":1,"SOCKETS_REMAINING":0,"RATELIMIT_MAX_SECOND":30,"RATELIMIT_MAX_MINUTE":60,"RATELIMIT_MAX_HOUR":1200,"RATELIMIT_MAX_DAY":10000,"RATELIMIT_MAX_MONTH":20000,"RATELIMIT_REMAINING_SECOND":29,"RATELIMIT_REMAINING_MINUTE":59,"RATELIMIT_REMAINING_HOUR":1199,"RATELIMIT_REMAINING_DAY":9999,"RATELIMIT_REMAINING_MONTH":19867}
+// Example ▼ {"TYPE":"20","MESSAGE":"STREAMERWELCOME","SERVER_UPTIME_SECONDS":1262462,"SERVER_NAME":"08","SERVER_TIME_MS":1753184197855,"CLIENT_ID":2561280,"DATA_FORMAT":"JSON","SOCKET_ID":"7zUlXfWU+zH7uX7ViDS2","SOCKETS_ACTIVE":1,"SOCKETS_REMAINING":0,"RATELIMIT_MAX_SECOND":30,"RATELIMIT_MAX_MINUTE":60,"RATELIMIT_MAX_HOUR":1200,"RATELIMIT_MAX_DAY":10000,"RATELIMIT_MAX_MONTH":20000,"RATELIMIT_REMAINING_SECOND":29,"RATELIMIT_REMAINING_MINUTE":59,"RATELIMIT_REMAINING_HOUR":1199,"RATELIMIT_REMAINING_DAY":9999,"RATELIMIT_REMAINING_MONTH":19867}
 
 const channelToSubscription = new Map();
 
@@ -18,7 +18,8 @@ socket.addEventListener('close', (reason) => {
 socket.addEventListener('error', (error) => {
 	console.log('[socket] Error:', error);
 });
-// This function calculates the start time of the bar based on the resolution
+
+// Calculates the start time of the bar based on the resolution
 function getNextBarTime(barTime, resolution) {
 	const date = new Date(barTime);
     const interval = parseInt(resolution);
@@ -46,7 +47,7 @@ socket.addEventListener('message', (event) => {
 		Q: tradeVolume,
 	} = data;
 
-	// We are only interested in Trade event updates
+	// Handle Trade event updates only
 	if (parseInt(eventType) !== 0) {
 		return;
 	}
@@ -65,8 +66,9 @@ socket.addEventListener('message', (event) => {
 	// TSNS:654000000
 	// RTSNS:708000000
 
-	// Description of Q paramteres:
-    // The from asset (base symbol / coin) volume of the trade (for a BTC-USD trade, how much BTC was traded at the trade price)//
+	// Description of Q parameters:
+    // The from asset (base symbol / coin) volume of the trade 
+	// (for a BTC-USD trade, how much BTC was traded at the trade price)
 
 	const channelString = `0~${exchange}~${fromSymbol}~${toSymbol}`;
 	const subscriptionItem = channelToSubscription.get(channelString);
@@ -115,13 +117,14 @@ export function subscribeOnStream(
     onResetCacheNeededCallback,
     lastBar
 ) {
-	// simple check
+	// Valid SymbolInfo
 	if (!symbolInfo || !symbolInfo.ticker) {
 		console.error('[subscribeBars]: Invalid symbolInfo:', symbolInfo);
 		return;
 	}
 	const parsedSymbol = parseFullSymbol(symbolInfo.ticker);
-	// We subscribe to the trade channel to build bars ourselves
+
+	// Subscribe to the trade channel to build bars ourselves
 	const channelString = `0~${parsedSymbol.exchange}~${parsedSymbol.fromSymbol}~${parsedSymbol.toSymbol}`;
 	
 	const handler = {
