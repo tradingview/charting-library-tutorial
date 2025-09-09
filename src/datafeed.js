@@ -8,12 +8,14 @@ import {
 	unsubscribeFromStream,
 } from './streaming.js';
 
+// Use a Map to store the last bar for each symbol subscription.
+// This is essential for the streaming logic to update the chart correctly.
 const lastBarsCache = new Map();
 
 // DatafeedConfiguration implementation
 const configurationData = {
 	// Represents the resolutions for bars supported by your datafeed
-	supported_resolutions: ['1D', '1W', '1M'],
+	supported_resolutions: ['1', '5', '15', '60', '180', '1D', '1W', '1M'],
 
 	// The `exchanges` arguments are used for the `searchSymbols` method if a user selects the exchange
 	exchanges: [{
@@ -43,20 +45,22 @@ async function getAllSymbols() {
 	let allSymbols = [];
 
 	for (const exchange of configurationData.exchanges) {
-		const pairs = data.Data[exchange.value].pairs;
+		if (data.Data[exchange.value]) {
+			const pairs = data.Data[exchange.value].pairs;
 
-		for (const leftPairPart of Object.keys(pairs)) {
-			const symbols = pairs[leftPairPart].map(rightPairPart => {
-				const symbol = generateSymbol(exchange.value, leftPairPart, rightPairPart);
-				return {
-					symbol: symbol.short,
-					full_name: symbol.full,
-					description: symbol.short,
-					exchange: exchange.value,
-					type: 'crypto',
-				};
-			});
-			allSymbols = [...allSymbols, ...symbols];
+			for (const leftPairPart of Object.keys(pairs)) {
+				const symbols = pairs[leftPairPart].map(rightPairPart => {
+					const symbol = generateSymbol(exchange.value, leftPairPart, rightPairPart);
+					return {
+						symbol: symbol.short,
+						ticker: symbol.full,
+						description: symbol.short,
+						exchange: exchange.value,
+						type: 'crypto'
+					};
+				});
+				allSymbols = [...allSymbols, ...symbols];
+			}
 		}
 	}
 	return allSymbols;
@@ -78,7 +82,7 @@ export default {
 		const symbols = await getAllSymbols();
 		const newSymbols = symbols.filter(symbol => {
 			const isExchangeValid = exchange === '' || symbol.exchange === exchange;
-			const isFullSymbolContainsInput = symbol.full_name
+			const isFullSymbolContainsInput = symbol.ticker
 				.toLowerCase()
 				.indexOf(userInput.toLowerCase()) !== -1;
 			return isExchangeValid && isFullSymbolContainsInput;
@@ -95,27 +99,30 @@ export default {
 		console.log('[resolveSymbol]: Method call', symbolName);
 		const symbols = await getAllSymbols();
 		const symbolItem = symbols.find(({
-			full_name,
-		}) => full_name === symbolName);
+			ticker,
+		}) => ticker === symbolName);
 		if (!symbolItem) {
 			console.log('[resolveSymbol]: Cannot resolve symbol', symbolName);
-			onResolveErrorCallback('cannot resolve symbol');
+			onResolveErrorCallback("unknown_symbol"); // for ghost icon
 			return;
 		}
 		// Symbol information object
 		const symbolInfo = {
-			ticker: symbolItem.full_name,
+			ticker: symbolItem.ticker,
 			name: symbolItem.symbol,
 			description: symbolItem.description,
 			type: symbolItem.type,
+			exchange: symbolItem.exchange,
+			listed_exchange: symbolItem.exchange,
 			session: '24x7',
 			timezone: 'Etc/UTC',
-			exchange: symbolItem.exchange,
 			minmov: 1,
-			pricescale: 100,
-			has_intraday: false,
-			has_no_volume: true,
-			has_weekly_and_monthly: false,
+			pricescale: 10000,
+			has_intraday: true,
+			intraday_multipliers: ["1", "60"],
+			has_daily: true,
+			daily_multipliers: ["1"],
+			visible_plots_set: "ohlcv",
 			supported_resolutions: configurationData.supported_resolutions,
 			volume_precision: 2,
 			data_status: 'streaming',
@@ -128,7 +135,21 @@ export default {
 	getBars: async (symbolInfo, resolution, periodParams, onHistoryCallback, onErrorCallback) => {
 		const { from, to, firstDataRequest } = periodParams;
 		console.log('[getBars]: Method call', symbolInfo, resolution, from, to);
-		const parsedSymbol = parseFullSymbol(symbolInfo.full_name);
+		const parsedSymbol = parseFullSymbol(symbolInfo.ticker);
+
+		let endpoint;
+		// Determine the correct endpoint based on the resolution requested by the library
+		if (resolution === '1D') {
+			endpoint = 'histoday';
+		} else if (resolution === '60') {
+			endpoint = 'histohour';
+		} else if (resolution === '1') {
+			endpoint = 'histominute';
+		} else {
+			onErrorCallback(`Invalid resolution: ${resolution}`);
+			return;
+		}
+
 		const urlParameters = {
 			e: parsedSymbol.exchange,
 			fsym: parsedSymbol.fromSymbol,
@@ -136,39 +157,40 @@ export default {
 			toTs: to,
 			limit: 2000,
 		};
+
+	    // Example of historical OHLC 5 minute data request: 
+		// https://min-api.cryptocompare.com/data/v2/histominute?fsym=ETH&tsym=USDT&limit=10&e=Binance&api_key="API_KEY"
 		const query = Object.keys(urlParameters)
 			.map(name => `${name}=${encodeURIComponent(urlParameters[name])}`)
 			.join('&');
+
 		try {
-			const data = await makeApiRequest(`data/histoday?${query}`);
-			if (data.Response && data.Response === 'Error' || data.Data.length === 0) {
+			const data = await makeApiRequest(`data/v2/${endpoint}?${query}`);
+			if ((data.Response && data.Response === 'Error') || !data.Data || !data.Data.Data || data.Data.Data.length === 0) {
 				// "noData" should be set if there is no data in the requested period
-				onHistoryCallback([], {
-					noData: true,
-				});
+				onHistoryCallback([], { noData: true });
 				return;
 			}
+
 			let bars = [];
-			data.Data.forEach(bar => {
+			data.Data.Data.forEach(bar => {
 				if (bar.time >= from && bar.time < to) {
-					bars = [...bars, {
+					bars.push({
 						time: bar.time * 1000,
 						low: bar.low,
 						high: bar.high,
 						open: bar.open,
 						close: bar.close,
-					}];
+						volume: bar.volumefrom,
+					});
 				}
 			});
+
 			if (firstDataRequest) {
-				lastBarsCache.set(symbolInfo.full_name, {
-					...bars[bars.length - 1],
-				});
+				lastBarsCache.set(symbolInfo.ticker, { ...bars[bars.length - 1] });
 			}
 			console.log(`[getBars]: returned ${bars.length} bar(s)`);
-			onHistoryCallback(bars, {
-				noData: false,
-			});
+			onHistoryCallback(bars, { noData: false });
 		} catch (error) {
 			console.log('[getBars]: Get error', error);
 			onErrorCallback(error);
@@ -189,7 +211,8 @@ export default {
 			onRealtimeCallback,
 			subscriberUID,
 			onResetCacheNeededCallback,
-			lastBarsCache.get(symbolInfo.full_name),
+			// Pass the last bar from cache if available
+			lastBarsCache.get(symbolInfo.ticker)
 		);
 	},
 

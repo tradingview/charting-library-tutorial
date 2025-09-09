@@ -9,3 +9,16 @@ window.tvWidget = new TradingView.widget({
 	datafeed: Datafeed,
 	library_path: '../charting_library_cloned_data/charting_library/',
 });
+
+// Wait for the chart to be ready
+tvWidget.onChartReady(() => {
+	console.log('Chart is ready');
+	const chart = tvWidget.activeChart();
+
+	// Subscribe to interval changes and then clear cache
+	chart.onIntervalChanged().subscribe(null, () => {
+		tvWidget.resetCache();
+		chart.resetData();
+	});
+});
+window.frames[0].focus();
