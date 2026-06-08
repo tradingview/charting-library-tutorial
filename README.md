@@ -9,14 +9,44 @@ optional run modes:
 You only need the TradingView package for the page you want to test. If both
 packages are present, both routes work in the same checkout.
 
-## Download A TradingView Package
+Last tested: June 2026 with TradingView Advanced Charts 31.2.0, Trading
+Platform 31.2.0, Binance public Spot REST/WebSocket APIs, CoinDesk RSS, and the
+npm dependencies from `package-lock.json`.
 
-If you have GitHub SSH access to TradingView's repositories, npm can download
-and place the package for you:
+## Start The Project
+
+For a fresh clone, install npm dependencies first, then download the TradingView
+runtime you want to use:
 
 ```bash
-npm run tv:install:ac -- 31.2.0 # current latest version
+npm install
 npm run tv:install:tp -- 31.2.0 # current latest version
+npm run start
+```
+
+For the free Advanced Charts page only, use this instead:
+
+```bash
+npm install
+npm run tv:install:ac -- 31.2.0
+npm run start
+```
+
+Open:
+
+```text
+http://127.0.0.1:3000
+http://127.0.0.1:3000/trading
+```
+
+## Download A TradingView Package
+
+If you have GitHub SSH access to TradingView's repositories, the install helper
+can download and place the package for you:
+
+```bash
+npm run tv:install:ac -- 31.2.0 # tested version
+npm run tv:install:tp -- 31.2.0 # tested version
 ```
 
 Use only the command for the package you need. If you omit the version, the
@@ -51,29 +81,6 @@ third_party/tradingview/broker-sample/dist/bundle.js
 
 The bundle can be found in TradingView's Trading Platform repository:
 [broker-sample/dist/bundle.js](https://github.com/tradingview/trading_platform/blob/master/broker-sample/dist/bundle.js).
-
-## Start The Project
-
-```bash
-npm install
-npm run tv:install:tp -- 31.2.0
-npm run start
-```
-
-For the free Advanced Charts page only, use this instead:
-
-```bash
-npm install
-npm run tv:install:ac -- 31.2.0
-npm run start
-```
-
-Open:
-
-```text
-http://127.0.0.1:3000
-http://127.0.0.1:3000/trading
-```
 
 ## Routes
 

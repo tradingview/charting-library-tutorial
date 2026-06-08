@@ -1,3 +1,6 @@
+// Downloads private TradingView GitHub packages into vendor/tradingview and
+// copies the Trading Platform BrokerDemo bundle when available. See README.md
+// for setup commands and INTEGRATION_DETAILS.md for the runtime layout.
 import {
 	cp,
 	mkdir,
@@ -95,38 +98,118 @@ async function exists(targetPath) {
 	}
 }
 
-async function findInstalledRuntime(nodeModulesPath) {
+async function existsFile(targetPath) {
+	try {
+		const stats = await stat(targetPath);
+		return stats.isFile();
+	} catch {
+		return false;
+	}
+}
+
+async function getInstalledPackagePaths(nodeModulesPath) {
 	const entries = await readdir(nodeModulesPath, { withFileTypes: true });
+	const packagePaths = [];
 
 	for (const entry of entries) {
 		if (!entry.isDirectory() || entry.name.startsWith('.')) continue;
 
-		const packagePath = path.join(nodeModulesPath, entry.name);
+		const entryPath = path.join(nodeModulesPath, entry.name);
+
+		if (entry.name.startsWith('@')) {
+			const scopedEntries = await readdir(entryPath, {
+				withFileTypes: true,
+			});
+
+			scopedEntries.forEach(scopedEntry => {
+				if (scopedEntry.isDirectory()) {
+					packagePaths.push(path.join(entryPath, scopedEntry.name));
+				}
+			});
+			continue;
+		}
+
+		packagePaths.push(entryPath);
+	}
+
+	return packagePaths;
+}
+
+async function findInstalledRuntime(nodeModulesPath, repository) {
+	const packagePaths = await getInstalledPackagePaths(nodeModulesPath);
+	const runtimeCandidates = [];
+
+	for (const packagePath of packagePaths) {
 		const runtimePath = path.join(packagePath, 'charting_library');
 
 		if (await exists(runtimePath)) {
-			return { packagePath, runtimePath };
+			runtimeCandidates.push({ packagePath, runtimePath });
 		}
 	}
 
-	throw new Error(
-		'Installed package did not contain a charting_library/ runtime folder.'
+	if (runtimeCandidates.length === 0) {
+		throw new Error(
+			'Installed package did not contain a charting_library/ runtime folder.'
+		);
+	}
+
+	if (repository === 'trading_platform') {
+		for (const candidate of runtimeCandidates) {
+			const brokerSamplePath = path.join(
+				candidate.packagePath,
+				'broker-sample',
+				'dist',
+				'bundle.js'
+			);
+
+			if (await existsFile(brokerSamplePath)) {
+				return candidate;
+			}
+		}
+	}
+
+	const matchingPackageName = runtimeCandidates.find(candidate =>
+		path.basename(candidate.packagePath).includes(repository)
 	);
+
+	return matchingPackageName ?? runtimeCandidates[0];
 }
 
-async function copyBrokerSampleIfPresent(packagePath) {
-	const sourcePath = path.join(
-		packagePath,
+async function findBrokerSampleBundle(nodeModulesPath, preferredPackagePath) {
+	const relativeBundlePath = path.join(
 		'broker-sample',
 		'dist',
 		'bundle.js'
 	);
+	const preferredSourcePath = path.join(
+		preferredPackagePath,
+		relativeBundlePath
+	);
 
-	try {
-		await stat(sourcePath);
-	} catch {
-		return false;
+	if (await existsFile(preferredSourcePath)) {
+		return preferredSourcePath;
 	}
+
+	const packagePaths = await getInstalledPackagePaths(nodeModulesPath);
+
+	for (const packagePath of packagePaths) {
+		const sourcePath = path.join(packagePath, relativeBundlePath);
+
+		if (await existsFile(sourcePath)) {
+			return sourcePath;
+		}
+	}
+
+	return null;
+}
+
+async function copyBrokerSampleIfPresent(nodeModulesPath, preferredPackagePath) {
+	const sourcePath = await findBrokerSampleBundle(
+		nodeModulesPath,
+		preferredPackagePath
+	);
+
+	if (!sourcePath) return false;
 
 	const destinationPath = path.join(
 		projectRoot,
@@ -171,8 +254,10 @@ async function downloadAndCopyRuntime(runtime, ref) {
 			{ cwd: tempRoot }
 		);
 
+		const nodeModulesPath = path.join(tempRoot, 'node_modules');
 		const { packagePath, runtimePath } = await findInstalledRuntime(
-			path.join(tempRoot, 'node_modules')
+			nodeModulesPath,
+			runtime.repository
 		);
 
 		await rm(runtime.outputPath, { recursive: true, force: true });
@@ -183,8 +268,10 @@ async function downloadAndCopyRuntime(runtime, ref) {
 		});
 
 		if (runtime.repository === 'trading_platform') {
-			const copiedBrokerSample =
-				await copyBrokerSampleIfPresent(packagePath);
+			const copiedBrokerSample = await copyBrokerSampleIfPresent(
+				nodeModulesPath,
+				packagePath
+			);
 			if (copiedBrokerSample) {
 				console.log(
 					'Copied broker sample bundle into third_party/tradingview/broker-sample/dist/bundle.js.'

@@ -58,6 +58,21 @@ const WATCHLIST_SYMBOLS = [
 	'Binance:XRP/BTC',
 ];
 
+function formatAlertPrice(price, chart) {
+	const fallback = price.toFixed(2);
+
+	try {
+		const formatter =
+			chart?.getSeries?.()?.priceFormatter?.() ??
+			chart?.priceFormatter?.();
+		const formattedPrice = formatter?.format?.(price);
+
+		return formattedPrice || fallback;
+	} catch {
+		return fallback;
+	}
+}
+
 // Converts the external BrokerDemo sample into Trading Platform widget options.
 function createBrokerOptions(onHostReady) {
 	const BrokerDemo = globalThis.Brokers?.BrokerDemo;
@@ -102,9 +117,10 @@ function createAlertController({ getWidget, notify }) {
 					return items;
 
 				const price = lastPlusClickPrice;
+				const chart = getWidget()?.activeChart?.();
 				const alertAction = actionsFactory.createAction({
 					actionId: 'create_custom_alert',
-					label: `Add Alert at ${price.toFixed(2)}`,
+					label: `Add Alert at ${formatAlertPrice(price, chart)}`,
 					onExecute: async () => {
 						const widget = getWidget();
 						const chart = widget.activeChart();
@@ -153,13 +169,14 @@ function createAlertController({ getWidget, notify }) {
 							previousPrice > alert.price &&
 							currentPrice <= alert.price;
 
-						if (!crossedUp && !crossedDown) return true;
+							if (!crossedUp && !crossedDown) return true;
 
-						notify(
-							'Alert Triggered',
-							`Price crossed your alert at ${alert.price.toFixed(2)}`
-						);
-						try {
+							const alertPrice = formatAlertPrice(alert.price, chart);
+							notify(
+								'Alert Triggered',
+								`Price crossed your alert at ${alertPrice}`
+							);
+							try {
 							chart.removeEntity(alert.id);
 						} catch {
 							// The line may already be gone if the user removed it manually.
@@ -175,19 +192,17 @@ function createAlertController({ getWidget, notify }) {
 			widget.subscribe('drawing_event', (id, type) => {
 				if (type !== 'points_changed') return;
 
-				const alertIndex = activeAlerts.findIndex(
-					alert => alert.id === id
-				);
-				if (alertIndex === -1) return;
-
 				window.setTimeout(() => {
+					const alert = activeAlerts.find(alert => alert.id === id);
+					if (!alert) return;
+
 					const shape = chart.getShapeById(id);
 					const newPrice = shape?.getPoints()[0]?.price;
 					if (newPrice === undefined) return;
 
-					activeAlerts[alertIndex].price = newPrice;
+					alert.price = newPrice;
 					shape.setProperties({
-						text: `Alert: ${newPrice.toFixed(2)}`,
+						text: `Alert: ${formatAlertPrice(newPrice, chart)}`,
 					});
 				}, 50);
 			});

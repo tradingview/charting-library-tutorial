@@ -1,3 +1,6 @@
+// Syncs locally placed TradingView package folders into vendor/tradingview.
+// See README.md for setup commands and INTEGRATION_DETAILS.md for the runtime
+// layout this script maintains.
 import { cp, mkdir, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

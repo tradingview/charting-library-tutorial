@@ -202,15 +202,7 @@ export function getResolutionSpec(resolution) {
 
 // Converts a native Binance interval into milliseconds when the duration is fixed.
 export function intervalToMilliseconds(interval) {
-	if (BINANCE_INTERVAL_MS[interval]) {
-		return BINANCE_INTERVAL_MS[interval];
-	}
-
-	if (interval === '1M') {
-		return null;
-	}
-
-	return null;
+	return BINANCE_INTERVAL_MS[interval] ?? null;
 }
 
 // Converts a TradingView resolution into milliseconds when the duration is fixed.
