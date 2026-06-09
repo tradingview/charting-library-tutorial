@@ -40,9 +40,11 @@ directly into `vendor/tradingview/`.
 
 The generated `vendor/tradingview/` folder is ignored by git.
 
-The Trading Platform install helper also copies `broker-sample/dist/bundle.js`
-into `third_party/tradingview/broker-sample/dist/bundle.js` when the installed
-package contains it.
+The Trading Platform install helper also installs
+`broker-sample/dist/bundle.js` into
+`third_party/tradingview/broker-sample/dist/bundle.js`. It first checks the
+installed package, then falls back to fetching the file from the Trading
+Platform repository using the same version or git ref.
 
 ## Binance REST APIs
 

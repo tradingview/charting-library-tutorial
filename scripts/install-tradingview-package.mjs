@@ -20,6 +20,17 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
 
 const outputRoot = path.join(projectRoot, 'vendor', 'tradingview');
+const brokerSampleRelativePath = path.join(
+	'broker-sample',
+	'dist',
+	'bundle.js'
+);
+const brokerSampleDestinationPath = path.join(
+	projectRoot,
+	'third_party',
+	'tradingview',
+	brokerSampleRelativePath
+);
 
 const RUNTIMES = {
 	ac: {
@@ -107,6 +118,11 @@ async function existsFile(targetPath) {
 	}
 }
 
+async function copyBrokerSample(sourcePath) {
+	await mkdir(path.dirname(brokerSampleDestinationPath), { recursive: true });
+	await cp(sourcePath, brokerSampleDestinationPath, { force: true });
+}
+
 async function getInstalledPackagePaths(nodeModulesPath) {
 	const entries = await readdir(nodeModulesPath, { withFileTypes: true });
 	const packagePaths = [];
@@ -176,14 +192,9 @@ async function findInstalledRuntime(nodeModulesPath, repository) {
 }
 
 async function findBrokerSampleBundle(nodeModulesPath, preferredPackagePath) {
-	const relativeBundlePath = path.join(
-		'broker-sample',
-		'dist',
-		'bundle.js'
-	);
 	const preferredSourcePath = path.join(
 		preferredPackagePath,
-		relativeBundlePath
+		brokerSampleRelativePath
 	);
 
 	if (await existsFile(preferredSourcePath)) {
@@ -193,7 +204,7 @@ async function findBrokerSampleBundle(nodeModulesPath, preferredPackagePath) {
 	const packagePaths = await getInstalledPackagePaths(nodeModulesPath);
 
 	for (const packagePath of packagePaths) {
-		const sourcePath = path.join(packagePath, relativeBundlePath);
+		const sourcePath = path.join(packagePath, brokerSampleRelativePath);
 
 		if (await existsFile(sourcePath)) {
 			return sourcePath;
@@ -211,19 +222,72 @@ async function copyBrokerSampleIfPresent(nodeModulesPath, preferredPackagePath) 
 
 	if (!sourcePath) return false;
 
-	const destinationPath = path.join(
-		projectRoot,
-		'third_party',
-		'tradingview',
-		'broker-sample',
-		'dist',
-		'bundle.js'
-	);
-
-	await mkdir(path.dirname(destinationPath), { recursive: true });
-	await cp(sourcePath, destinationPath, { force: true });
+	await copyBrokerSample(sourcePath);
 
 	return true;
+}
+
+function getBrokerSampleFetchRefs(ref) {
+	if (/^\d+\.\d+\.\d+$/.test(ref)) {
+		return [ref, `v${ref}`];
+	}
+
+	return [ref];
+}
+
+async function fetchBrokerSampleFromRepository(ref) {
+	const tempRoot = await mkdtemp(
+		path.join(os.tmpdir(), 'tradingview-broker-sample-')
+	);
+
+	try {
+		await run('git', ['init'], { cwd: tempRoot });
+		await run(
+			'git',
+			[
+				'remote',
+				'add',
+				'origin',
+				'git@github.com:tradingview/trading_platform.git',
+			],
+			{ cwd: tempRoot }
+		);
+
+		let lastError;
+		for (const fetchRef of getBrokerSampleFetchRefs(ref)) {
+			try {
+				await run('git', ['fetch', '--depth', '1', 'origin', fetchRef], {
+					cwd: tempRoot,
+				});
+				lastError = null;
+				break;
+			} catch (error) {
+				lastError = error;
+			}
+		}
+
+		if (lastError) {
+			throw lastError;
+		}
+
+		await run(
+			'git',
+			['checkout', 'FETCH_HEAD', '--', 'broker-sample/dist/bundle.js'],
+			{ cwd: tempRoot }
+		);
+
+		const sourcePath = path.join(tempRoot, brokerSampleRelativePath);
+		if (!(await existsFile(sourcePath))) {
+			throw new Error(
+				'broker-sample/dist/bundle.js was not found in the Trading Platform repository.'
+			);
+		}
+
+		await copyBrokerSample(sourcePath);
+		return true;
+	} finally {
+		await rm(tempRoot, { recursive: true, force: true });
+	}
 }
 
 async function downloadAndCopyRuntime(runtime, ref) {
@@ -278,7 +342,11 @@ async function downloadAndCopyRuntime(runtime, ref) {
 				);
 			} else {
 				console.warn(
-					'Broker sample bundle was not found in the installed package.'
+					'Broker sample bundle was not found in the installed package; fetching it from tradingview/trading_platform.'
+				);
+				await fetchBrokerSampleFromRepository(ref);
+				console.log(
+					'Fetched broker sample bundle into third_party/tradingview/broker-sample/dist/bundle.js.'
 				);
 			}
 		}

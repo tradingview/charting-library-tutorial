@@ -20,7 +20,7 @@ runtime you want to use:
 
 ```bash
 npm install
-npm run tv:install:tp -- 31.2.0 # current latest version
+npm run tv:install:tp -- 31.2.0 # tested version
 npm run start
 ```
 
@@ -71,9 +71,11 @@ charting-library-tutorial/
 - Use `charting_library-master` for the free Advanced Charts page.
 - Use `trading_platform-master` for the Trading Platform page.
 
-For Trading Platform broker features, the `tv:install:tp` script also copies
-TradingView's BrokerDemo bundle when it is present in the package. If you place
-packages manually, copy the bundle into this path:
+For Trading Platform broker features, the `tv:install:tp` script also installs
+TradingView's BrokerDemo bundle. It first checks the installed package, then
+falls back to fetching the bundle from the Trading Platform repository using the
+same version or git ref. If you place packages manually, copy the bundle into
+this path:
 
 ```text
 third_party/tradingview/broker-sample/dist/bundle.js
