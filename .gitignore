@@ -13,4 +13,5 @@ package-lock.json
 *.csproj
 *.pyproj
 *.user
-
+/third_party
+/vendor
