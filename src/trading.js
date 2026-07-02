@@ -325,9 +325,15 @@ function installToolbar(widget) {
 function installChartReadySubscriptions(widget, alertController) {
 	widget.subscribe('onAutoSaveNeeded', () => {
 		if (typeof widget.saveChartToServer === 'function') {
-			widget.saveChartToServer(null, null, {
+			const result = widget.saveChartToServer({
 				defaultChartName: 'Default',
 			});
+
+			if (result && typeof result.then === 'function') {
+				result.catch(error => {
+					console.error('Failed to save chart to server:', error);
+				});
+			}
 		}
 	});
 
