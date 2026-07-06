@@ -387,6 +387,8 @@ async function initTradingPlatformChart() {
 			...brokerOptions.widgetOptions,
 		})
 	);
+	window.widget = wdg;
+	window.tvWidget = wdg;
 
 	wdg.onChartReady(() => {
 		window.setTimeout(() => {
