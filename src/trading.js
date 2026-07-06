@@ -321,19 +321,35 @@ function installToolbar(widget) {
 	});
 }
 
+function whenChartReady(widget) {
+	if (typeof widget.chartReady === 'function') {
+		return widget.chartReady();
+	}
+
+	return new Promise(resolve => {
+		widget.onChartReady(resolve);
+	});
+}
+
+function saveWidgetChart(widget, options) {
+	if (typeof widget.chartReady === 'function') {
+		return widget.saveChartToServer(options);
+	}
+
+	return new Promise((resolve, reject) => {
+		widget.saveChartToServer(resolve, reject, options);
+	});
+}
+
 // Keep custom chart subscriptions together so future event wiring has one obvious home.
 function installChartReadySubscriptions(widget, alertController) {
 	widget.subscribe('onAutoSaveNeeded', () => {
 		if (typeof widget.saveChartToServer === 'function') {
-			const result = widget.saveChartToServer({
+			saveWidgetChart(widget, {
 				defaultChartName: 'Default',
+			}).catch(error => {
+				console.error('Failed to save chart to server:', error);
 			});
-
-			if (result && typeof result.then === 'function') {
-				result.catch(error => {
-					console.error('Failed to save chart to server:', error);
-				});
-			}
 		}
 	});
 
@@ -342,7 +358,7 @@ function installChartReadySubscriptions(widget, alertController) {
 	// ---------------------------------------------------------------------------
 	// Custom subscription events
 	// Add project-specific TradingView subscriptions here. This runs inside
-	// widget.onChartReady, so widget.activeChart() and broker-backed events are
+	// the chart-ready flow, so widget.activeChart() and broker-backed events are
 	// ready to use.
 	//
 	// Examples:
@@ -390,15 +406,22 @@ async function initTradingPlatformChart() {
 	window.widget = wdg;
 	window.tvWidget = wdg;
 
-	wdg.onChartReady(() => {
-		window.setTimeout(() => {
-			if (!brokerHost) {
-				showTradingPlatformWarning();
-			}
-		}, 1000);
+	whenChartReady(wdg)
+		.then(() => {
+			window.setTimeout(() => {
+				if (!brokerHost) {
+					showTradingPlatformWarning();
+				}
+			}, 1000);
 
-		installChartReadySubscriptions(wdg, alertController);
-	});
+			installChartReadySubscriptions(wdg, alertController);
+		})
+		.catch(error => {
+			console.error(
+				'Failed to initialize chart-ready subscriptions:',
+				error
+			);
+		});
 
 	installToolbar(wdg);
 }
