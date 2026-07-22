@@ -348,6 +348,30 @@ export default {
 		setTimeout(() => callback(configurationData));
 	},
 
+	// Synchronizes countdowns with Binance instead of the browser's local clock.
+	getServerTime(callback) {
+		void makeApiRequest('api/v3/time').then(
+			({ serverTime }) => {
+				if (Number.isFinite(serverTime)) {
+					callback(Math.floor(serverTime / 1000));
+					return;
+				}
+
+				console.warn(
+					'[getServerTime] Binance returned an invalid server time; using the local clock.'
+				);
+				callback(Math.floor(Date.now() / 1000));
+			},
+			error => {
+				console.warn(
+					'[getServerTime] Unable to retrieve Binance server time; using the local clock.',
+					error
+				);
+				callback(Math.floor(Date.now() / 1000));
+			}
+		);
+	},
+
 	// Returns search matches from the cached Binance spot symbol catalog.
 	async searchSymbols(
 		userInput,

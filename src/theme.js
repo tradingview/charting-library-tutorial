@@ -168,7 +168,7 @@ export function getChartOverrides(currentTheme = theme) {
 			'scalesProperties.textColor': '#ffffff',
 			'scalesProperties.lineColor': 'rgba(255, 255, 255, 0.14)',
 			'scalesProperties.fontSize': 14,
-			'time_scale.show_bar_countdown': true,
+			'mainSeriesProperties.showCountdown': true,
 			'mainSeriesProperties.showPrevClosePriceLine': true,
 			'backgrounds.outOfSession.color': 'rgba(16, 20, 32, 0.2)',
 			'mainSeriesProperties.baselineStyle.topLineColor':
@@ -190,7 +190,7 @@ export function getChartOverrides(currentTheme = theme) {
 		'scalesProperties.textColor': '#1f2933',
 		'scalesProperties.lineColor': 'rgba(15, 23, 42, 0.16)',
 		'scalesProperties.fontSize': 14,
-		'time_scale.show_bar_countdown': true,
+		'mainSeriesProperties.showCountdown': true,
 		'mainSeriesProperties.showPrevClosePriceLine': true,
 		'backgrounds.outOfSession.color': 'rgba(239, 243, 247, 0.75)',
 		'mainSeriesProperties.baselineStyle.topLineColor':

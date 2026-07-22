@@ -58,6 +58,8 @@ Used endpoints:
 
 - `api/v3/exchangeInfo`: loads Binance spot symbols for `searchSymbols` and
   `resolveSymbol`.
+- `api/v3/time`: synchronizes the library's bar-close countdown with Binance
+  server time.
 - `api/v3/klines`: loads historical OHLCV bars for `getBars`.
 - `api/v3/ticker/24hr`: seeds Trading Platform quote fields such as last price,
   bid/ask, daily high/low, volume, and daily change.
@@ -65,6 +67,31 @@ Used endpoints:
   change fields.
 
 No Binance API key is required.
+
+## Bar Countdown Server Time
+
+The chart's datafeed advertises `supports_time: true`, so the library calls
+`getServerTime(callback)` when it needs an authoritative clock for the
+bar-close countdown.
+
+`getServerTime` requests Binance's `api/v3/time` endpoint through the shared
+`makeApiRequest` helper. Binance responds with an object such as
+`{ "serverTime": 1784719101174 }`, where `serverTime` is Unix time in
+milliseconds. The datafeed converts it to the seconds value expected by the
+Charting Library before calling the callback:
+
+```js
+callback(Math.floor(serverTime / 1000));
+```
+
+The callback is invoked exactly once for each request. If Binance cannot be
+reached or returns an invalid value, the datafeed logs a warning and falls back
+to the browser clock so the chart remains usable; its countdown may then differ
+from Binance time.
+
+The server-time method provides the value only. The price-scale display is
+enabled independently with the `mainSeriesProperties.showCountdown` chart
+override in `src/theme.js`, for both light and dark themes.
 
 ## Binance WebSocket Streams
 
@@ -94,6 +121,7 @@ startup churn, and reconnect only while active subscribers exist.
 `src/datafeed.js` implements the TradingView methods used by the widgets:
 
 - `onReady`
+- `getServerTime`
 - `searchSymbols`
 - `resolveSymbol`
 - `getBars`
