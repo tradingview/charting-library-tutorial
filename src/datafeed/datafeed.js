@@ -1,10 +1,8 @@
 import {
 	BINANCE_EXCHANGE,
 	SUPPORTED_RESOLUTIONS,
-	barStartTime,
 	generateSymbol,
-	getResolutionSpec,
-	intervalToMilliseconds,
+	getBinanceInterval,
 	makeApiRequest,
 	parseFullSymbol,
 } from './helpers.js';
@@ -33,6 +31,8 @@ const INTRADAY_MULTIPLIERS = [
 	'480',
 	'720',
 ];
+const KLINE_LIMIT = 1000;
+const MAX_KLINE_REQUESTS = 25;
 const BINANCE_WS_URL = 'wss://stream.binance.com:9443/ws';
 const DEPTH_LEVELS = 20;
 const DEPTH_PUSH_INTERVAL_MS = 250;
@@ -119,59 +119,39 @@ function getSymbolInfoItem(symbols, symbolName) {
 	);
 }
 
-// Pages through Binance klines until the requested time window is covered.
-async function fetchKlines(symbol, interval, fromMs, toMs) {
-	const intervalMs = intervalToMilliseconds(interval);
-	if (!intervalMs && interval !== '1M') {
-		throw new Error(`Unsupported Binance interval: ${interval}`);
-	}
-
-	const results = [];
-	let cursor = fromMs;
+// Walks Binance klines backwards from toMs until countBack bars are collected.
+// Binance returns the most recent bars at or before endTime, which is exactly the
+// shape getBars needs: the library asks for a bar count, not a time window.
+async function fetchKlinesBefore(symbol, interval, toMs, countBack) {
+	const collected = [];
+	let endTime = toMs - 1;
 	let requestCount = 0;
-	const hardStop = 25;
 
-	while (cursor < toMs && requestCount < hardStop) {
+	while (collected.length < countBack && requestCount < MAX_KLINE_REQUESTS) {
+		const limit = Math.min(KLINE_LIMIT, countBack - collected.length);
 		const batch = await makeApiRequest('api/v3/klines', {
 			symbol,
 			interval,
-			startTime: cursor,
-			endTime: toMs,
-			limit: 1000,
+			endTime,
+			limit,
 		});
 
 		if (!Array.isArray(batch) || batch.length === 0) {
 			break;
 		}
 
-		results.push(...batch);
-
-		const lastOpenTime = batch[batch.length - 1][0];
-		const nextCursor =
-			interval === '1M'
-				? new Date(lastOpenTime).setUTCMonth(
-						new Date(lastOpenTime).getUTCMonth() + 1
-					)
-				: lastOpenTime + intervalMs;
-
-		if (nextCursor <= cursor) {
-			break;
-		}
-
-		cursor = nextCursor;
+		collected.unshift(...batch);
 		requestCount += 1;
 
-		if (batch.length < 1000) {
+		// Exclusive bound, so the next page cannot repeat the bar we just read.
+		endTime = batch[0][0] - 1;
+
+		if (batch.length < limit) {
 			break;
 		}
 	}
 
-	const deduped = new Map();
-	results.forEach(entry => {
-		deduped.set(entry[0], entry);
-	});
-
-	return [...deduped.values()].sort((left, right) => left[0] - right[0]);
+	return collected;
 }
 
 // Converts raw Binance kline arrays into TradingView bar objects.
@@ -184,35 +164,6 @@ function normalizeKlines(klines) {
 		close: parseFloat(entry[4]),
 		volume: parseFloat(entry[5]),
 	}));
-}
-
-// Rebuilds higher custom resolutions from the raw interval bars we fetched.
-function aggregateBars(rawBars, resolution) {
-	const aggregated = [];
-
-	rawBars.forEach(bar => {
-		const bucketTime = barStartTime(bar.time, resolution);
-		const current = aggregated[aggregated.length - 1];
-
-		if (current && current.time === bucketTime) {
-			current.high = Math.max(current.high, bar.high);
-			current.low = Math.min(current.low, bar.low);
-			current.close = bar.close;
-			current.volume += bar.volume;
-			return;
-		}
-
-		aggregated.push({
-			time: bucketTime,
-			open: bar.open,
-			high: bar.high,
-			low: bar.low,
-			close: bar.close,
-			volume: bar.volume,
-		});
-	});
-
-	return aggregated;
 }
 
 // Normalizes single-object and array responses into a consistent array shape.
@@ -428,11 +379,15 @@ export default {
 				minmov: 1,
 				pricescale: symbolItem.priceScale,
 				format: 'price',
+				has_seconds: true,
+				seconds_multipliers: ['1'],
 				has_intraday: true,
 				intraday_multipliers: INTRADAY_MULTIPLIERS,
 				has_daily: true,
 				daily_multipliers: ['1', '3'],
 				has_weekly_and_monthly: true,
+				weekly_multipliers: ['1'],
+				monthly_multipliers: ['1'],
 				visible_plots_set: 'ohlcv',
 				supported_resolutions: configurationData.supported_resolutions,
 				data_status: 'streaming',
@@ -446,7 +401,9 @@ export default {
 		}
 	},
 
-	// Fetches historical bars and rebuilds custom resolutions when needed.
+	// Fetches historical bars for one of the raw intervals declared in the
+	// *_multipliers. countBack outranks `from`: returning fewer bars than asked for
+	// makes the library issue another request to cover the shortfall.
 	async getBars(
 		symbolInfo,
 		resolution,
@@ -454,7 +411,7 @@ export default {
 		onHistoryCallback,
 		onErrorCallback
 	) {
-		const { from, to, firstDataRequest } = periodParams;
+		const { to, countBack, firstDataRequest } = periodParams;
 
 		const parsed = parseFullSymbol(symbolInfo.ticker);
 		if (!parsed) {
@@ -462,35 +419,23 @@ export default {
 			return;
 		}
 
-		const spec = getResolutionSpec(resolution);
-		if (!spec) {
+		const interval = getBinanceInterval(resolution);
+		if (!interval) {
 			onErrorCallback(`Unsupported resolution: ${resolution}`);
 			return;
 		}
 
-		const fromMs = barStartTime(from * 1000, resolution);
-		const toMs = to * 1000;
-
 		try {
-			const rawKlines = await fetchKlines(
+			const rawKlines = await fetchKlinesBefore(
 				parsed.symbol,
-				spec.interval,
-				fromMs,
-				toMs
+				interval,
+				to * 1000,
+				countBack
 			);
-			if (rawKlines.length === 0) {
-				onHistoryCallback([], { noData: true });
-				return;
-			}
 
-			const baseBars = normalizeKlines(rawKlines);
-			const resolvedBars =
-				spec.aggregate === 1
-					? baseBars
-					: aggregateBars(baseBars, resolution);
-
-			const bars = resolvedBars.filter(
-				bar => bar.time >= from * 1000 && bar.time < to * 1000
+			// The bar opening exactly on `to` belongs to the previous response.
+			const bars = normalizeKlines(rawKlines).filter(
+				bar => bar.time < to * 1000
 			);
 
 			if (bars.length === 0) {

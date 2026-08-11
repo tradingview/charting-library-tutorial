@@ -207,14 +207,79 @@ app at a feed that reports one.
 ];
 ```
 
-Native Binance-backed intervals:
+Raw intervals Binance serves natively, declared in `BINANCE_INTERVALS`
+(`src/datafeed/helpers.js`) and in the symbol's `*_multipliers`:
 
-- `1`, `3`, `5`, `15`, `30`, `60`, `120`, `240`, `360`, `480`, `720`, `1D`,
-  `3D`, `1W`, `1M`.
+- `1S`, `1`, `3`, `5`, `15`, `30`, `60`, `120`, `240`, `360`, `480`, `720`,
+  `1D`, `3D`, `1W`, `1M` — matching Binance's `1s`…`1M` kline intervals.
 
-Custom intervals rebuilt locally:
+Intervals the **library** builds by aggregating those raw bars:
 
-- `2`, `4`, `10`, `90`, `180`.
+- `5S`, `15S`, `30S`, `2`, `4`, `10`, `90`, `180`.
+
+The split matters, because it decides what the datafeed must implement. A
+`*_multipliers` array declares the resolutions the datafeed can serve itself;
+`supported_resolutions` may list more, and the library rebuilds the difference.
+So the library never calls `getBars` with `2` — it requests `1` and aggregates.
+The mapping it picks is the largest multiplier that divides the target evenly:
+
+| Selected in the UI    | Requested from `getBars` |
+| --------------------- | ------------------------ |
+| `5S`, `15S`, `30S`    | `1S`                     |
+| `2`, `4`              | `1`                      |
+| `10`                  | `5`                      |
+| `90`                  | `30`                     |
+| `180`                 | `60`                     |
+
+That is why this datafeed contains no bar-aggregation code: writing any would
+duplicate the library and never run. The only rule to honour is that every entry
+in a `*_multipliers` array must be an interval the provider actually returns.
+Note the library cannot build daily, weekly, or monthly bars out of intraday
+data, which is why `1D`, `3D`, `1W`, and `1M` are all declared as raw intervals.
+
+## Seconds Resolutions
+
+Seconds need one extra step beyond the multiplier rule, because they are gated
+by a featureset as well as by symbol info:
+
+- `seconds_resolution` is enabled in `SHARED_ENABLED_FEATURES`
+  (`src/widget-options.js`). Without it the resolutions never appear in the UI,
+  no matter what the datafeed declares.
+- `has_seconds: true` and `seconds_multipliers: ['1']` are returned from
+  `resolveSymbol`. Binance publishes only the `1s` kline, so `['1']` is the
+  honest declaration; the library builds `5S`, `15S`, and `30S` from it.
+
+Realtime uses the `<symbol>@kline_1s` websocket stream, the same code path as
+every other interval. Note that a `15S` chart makes the library request `1S`
+bars at 15× the bar count — a single screen is roughly 4600 klines, so the
+paging loop in `fetchKlinesBefore` runs several times per load.
+
+One library limitation to expect: the price-scale countdown is documented for
+intraday resolutions, with daily/weekly/monthly added in v32. Seconds fall
+outside that scope and the readout is unreliable — at `15S` it counts down from
+values well past the bar length, while `30S` happens to look plausible. The bars
+themselves are correct; only the countdown does not apply.
+
+## Bar Requests and countBack
+
+`getBars` is driven by `periodParams.countBack`, not by `from`. `countBack` is
+the exact number of bars the library needs, and it outranks the time range: if a
+response contains fewer bars, the library immediately issues another `getBars`
+call for the shortfall, so an off-by-one costs a round trip on every load.
+
+`fetchKlinesBefore` therefore asks Binance for `countBack` bars ending at `to`
+rather than for a time window. Binance returns the most recent klines at or
+before `endTime`, which maps onto that contract directly. Requests above the
+1000-kline limit page backwards with `endTime = firstOpenTime - 1`, an exclusive
+bound that cannot repeat the bar already read.
+
+Two boundary rules come out of the docs:
+
+- The bar opening exactly on `to` belongs to the previous response and is
+  filtered out, otherwise the library reports duplicate bar times.
+- When the provider runs out of history, the response must set
+  `{ noData: true }`. Without it the library keeps requesting older data
+  forever. `ETH/USDT` at `1M` hits this after ~109 bars.
 
 ## News
 

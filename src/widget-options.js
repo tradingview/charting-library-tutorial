@@ -3,6 +3,7 @@ import { CRYPTO_RSS_NEWS_FEED, CRYPTO_RSS_TITLE } from './news.js';
 import { cssBlobUrl, getChartOverrides, theme } from './theme.js';
 
 const SHARED_ENABLED_FEATURES = [
+	'seconds_resolution',
 	'custom_resolutions',
 	'allow_arbitrary_symbol_search_input',
 	'display_data_mode',

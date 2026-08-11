@@ -1,9 +1,4 @@
-import {
-	barStartTime,
-	getNextBarTime,
-	getResolutionSpec,
-	parseFullSymbol,
-} from './helpers.js';
+import { getBinanceInterval, parseFullSymbol } from './helpers.js';
 
 const UPDATE_FREQUENCY = 250;
 const WSS_URL = 'wss://stream.binance.com:9443/ws';
@@ -152,70 +147,18 @@ function sendUnsubscribe(ws, streamName) {
 	);
 }
 
-// Builds the Binance trade stream name for resolutions we assemble from ticks.
-function getTradeStreamName(providerSymbol) {
-	return `${providerSymbol.toLowerCase()}@trade`;
-}
-
-// Builds the Binance kline stream name for resolutions Binance publishes directly.
+// Builds the Binance kline stream name for the interval behind a resolution.
 function getKlineStreamName(providerSymbol, interval) {
 	return `${providerSymbol.toLowerCase()}@kline_${interval}`;
 }
 
-// Chooses the websocket stream type that should drive a given resolution.
+// Resolves the websocket stream that feeds a given resolution. The library only
+// ever subscribes to raw intervals, so every subscription maps to a kline stream.
 function getStreamName(providerSymbol, resolution) {
-	const spec = getResolutionSpec(resolution);
-	if (!spec) return null;
+	const interval = getBinanceInterval(resolution);
+	if (!interval) return null;
 
-	if (spec.streamType === 'trade') {
-		return getTradeStreamName(providerSymbol);
-	}
-
-	return getKlineStreamName(providerSymbol, spec.streamInterval);
-}
-
-// Updates an in-flight bar using raw trade ticks for rebuilt resolutions.
-function updateHandlerFromTrade(handler, message) {
-	const price = parseFloat(message.p);
-	const quantity = parseFloat(message.q);
-	const tradeTimeMs = message.T;
-	const lastBar = handler.lastBar;
-	const currentBarStart = barStartTime(tradeTimeMs, handler.resolution);
-
-	if (!lastBar || currentBarStart > lastBar.time) {
-		handler.lastBar = {
-			time: currentBarStart,
-			open: price,
-			high: price,
-			low: price,
-			close: price,
-			volume: quantity,
-		};
-		handler.isDirty = true;
-		return;
-	}
-
-	if (tradeTimeMs >= getNextBarTime(lastBar.time, handler.resolution)) {
-		handler.lastBar = {
-			time: currentBarStart,
-			open: price,
-			high: price,
-			low: price,
-			close: price,
-			volume: quantity,
-		};
-		handler.isDirty = true;
-		return;
-	}
-
-	handler.lastBar = {
-		...lastBar,
-		high: Math.max(lastBar.high, price),
-		low: Math.min(lastBar.low, price),
-		close: price,
-		volume: (lastBar.volume || 0) + quantity,
-	};
-	handler.isDirty = true;
+	return getKlineStreamName(providerSymbol, interval);
 }
 
 // Replaces subscriber bars with Binance's server-built kline payloads.
@@ -247,17 +190,6 @@ function onMessage(event) {
 	}
 
 	if (message.result === null || message.id !== undefined) {
-		return;
-	}
-
-	if (message.e === 'trade') {
-		const streamName = getTradeStreamName(message.s);
-		const subscription = streamToSubscription.get(streamName);
-		if (!subscription) return;
-
-		subscription.handlers.forEach(handler => {
-			updateHandlerFromTrade(handler, message);
-		});
 		return;
 	}
 
@@ -315,7 +247,6 @@ export function subscribeOnStream(
 		id: subscriberUID,
 		callback: onRealtimeCallback,
 		onResetCacheNeededCallback,
-		resolution,
 		lastBar: lastBar ?? null,
 		isDirty: false,
 	};
