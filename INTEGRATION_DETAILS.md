@@ -142,6 +142,44 @@ and `unsubscribeDepth` are exposed only to the Trading Platform route.
 `subscribeDepth` is Trading Platform-specific. It uses live Binance depth first
 and only generates synthetic levels while live depth is unavailable.
 
+## Custom Symbol Status
+
+`src/symbol-status.js` adds a custom item to the Market Status popup in the chart
+header describing where the loaded symbol's data comes from and how fresh it is:
+a hover tooltip (`Real-time · Binance`) plus a drop-down section with the raw
+Binance feed symbol, the exchange, the session, and a link to the Binance API
+docs.
+
+The module exposes two functions:
+
+- `setSymbolStatus(symbolInfo, providerSymbol)` — called from `resolveSymbol`.
+- `installSymbolStatus(widget)` — called from both page bootstraps.
+
+The status is published from `resolveSymbol` rather than from a `chartReady()`
+block subscribed to `onSymbolChanged`. `ICustomSymbolStatusApi.symbol()` keys
+each status on a `symbolId` that must match the resolved symbol exactly — the
+full ticker `Binance:BTC/USDT`, never the short `BTC/USDT` name — and
+`resolveSymbol` is the one place that value is known for certain. Driving it
+from `onSymbolChanged` works too, but only by reading `symbolInfo.ticker` and
+deferring the call with a timeout, because the header applies the status after
+the event fires.
+
+`widget.customSymbolStatus()` is only available once the chart exists, so
+`installSymbolStatus` resolves it inside `headerReady()`. The first
+`resolveSymbol` can land before that promise settles, so statuses derived in the
+meantime are queued in a `Map` keyed by symbol id and replayed on connect
+instead of being dropped.
+
+`CustomStatusDropDownContent.content` strings are interpreted as HTML markup.
+Everything interpolated into them comes from the Binance `exchangeInfo`
+response, so the module escapes those values before building the section.
+
+`describeFeed` derives the wording from the symbol info instead of hardcoding
+it: a `delay` above zero produces the amber "delayed" variant, anything else
+produces the teal real-time variant. Binance spot is real-time and this datafeed
+never sets `delay`, so the delayed branch is the path to reuse when pointing the
+app at a feed that reports one.
+
 ## Supported Resolutions
 
 ```js

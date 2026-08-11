@@ -1,5 +1,6 @@
 import Datafeed from './datafeed/datafeed.js';
 import { LocalStorageSaveLoadAdapter } from './save-load-adapter.js';
+import { installSymbolStatus } from './symbol-status.js';
 import {
 	addDocumentationButton,
 	addThemeToggle,
@@ -424,6 +425,7 @@ async function initTradingPlatformChart() {
 		});
 
 	installToolbar(wdg);
+	installSymbolStatus(wdg);
 }
 
 window.addEventListener('DOMContentLoaded', initTradingPlatformChart, {

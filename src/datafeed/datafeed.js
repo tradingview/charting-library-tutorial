@@ -13,6 +13,7 @@ import {
 	unsubscribeQuotesFromStream,
 } from './quotes.js';
 import { subscribeOnStream, unsubscribeFromStream } from './streaming.js';
+import { setSymbolStatus } from '../symbol-status.js';
 
 const lastBarsCache = new Map();
 const quotePriceCache = new Map();
@@ -413,7 +414,8 @@ export default {
 			}
 
 			rememberSymbolPriceScale(symbolItem);
-			onSymbolResolvedCallback({
+
+			const symbolInfo = {
 				ticker: symbolItem.ticker,
 				name: symbolItem.symbol,
 				description: symbolItem.description,
@@ -434,7 +436,10 @@ export default {
 				visible_plots_set: 'ohlcv',
 				supported_resolutions: configurationData.supported_resolutions,
 				data_status: 'streaming',
-			});
+			};
+
+			setSymbolStatus(symbolInfo, symbolItem.providerSymbol);
+			onSymbolResolvedCallback(symbolInfo);
 		} catch (error) {
 			console.error('[resolveSymbol] Error:', error);
 			onResolveErrorCallback('unknown_symbol');
