@@ -1,7 +1,15 @@
-# TradingView Charting Library Datafeed Example
+# TradingView charting libraries datafeed example
 
-This project demonstrates a Binance-backed TradingView datafeed with two
-optional run modes:
+This project implements a Binance-backed datafeed for TradingView
+[Advanced Charts](https://www.tradingview.com/advanced-charts/) and
+[Trading Platform](https://www.tradingview.com/trading-platform/).
+The [datafeed tutorial](https://www.tradingview.com/charting-library-docs/latest/tutorials/tutorials/implement_datafeed_tutorial/)
+in the [documentation](https://www.tradingview.com/charting-library-docs/) builds
+this code step by step, and its
+[Extend to Trading Platform](https://www.tradingview.com/charting-library-docs/latest/tutorials/tutorials/implement_datafeed_tutorial/extend-to-trading-platform/)
+part adds trading features.
+
+The project has two optional run modes:
 
 - Free Advanced Charts from `tradingview/charting_library`.
 - Paid Trading Platform from `tradingview/trading_platform`.
@@ -9,18 +17,18 @@ optional run modes:
 You only need the TradingView package for the page you want to test. If both
 packages are present, both routes work in the same checkout.
 
-Last tested: June 2026 with TradingView Advanced Charts 31.2.0, Trading
-Platform 31.2.0, Binance public Spot REST/WebSocket APIs, CoinDesk RSS, and the
+Last tested: November 2026 with TradingView Advanced Charts 33.1.0, Trading
+Platform 33.1.0, Binance public Spot REST/WebSocket APIs, CoinDesk RSS, and the
 npm dependencies from `package-lock.json`.
 
-## Start The Project
+## Start the project
 
 For a fresh clone, install npm dependencies first, then download the TradingView
 runtime you want to use:
 
 ```bash
 npm install
-npm run tv:install:tp -- 31.2.0 # tested version
+npm run tv:install:tp -- 33.1.0 # tested version
 npm run start
 ```
 
@@ -28,7 +36,7 @@ For the free Advanced Charts page only, use this instead:
 
 ```bash
 npm install
-npm run tv:install:ac -- 31.2.0
+npm run tv:install:ac -- 33.1.0
 npm run start
 ```
 
@@ -39,14 +47,16 @@ http://127.0.0.1:3000
 http://127.0.0.1:3000/trading
 ```
 
-## Download A TradingView Package
+## Download a TradingView package
 
 If you have GitHub SSH access to TradingView's repositories, the install helper
-can download and place the package for you:
+can download and place the package for you. Access to the repositories is
+restricted; see [Get access](https://www.tradingview.com/charting-library-docs/latest/quick-start/#1-get-access)
+to request it.
 
 ```bash
-npm run tv:install:ac -- 31.2.0 # tested version
-npm run tv:install:tp -- 31.2.0 # tested version
+npm run tv:install:ac -- 33.1.0 # tested version
+npm run tv:install:tp -- 33.1.0 # tested version
 ```
 
 Use only the command for the package you need. If you omit the version, the
@@ -92,13 +102,13 @@ The bundle can be found in TradingView's Trading Platform repository:
   alerts, save/load, watchlist, quotes, CoinDesk news, toolbar controls, and
   multi-chart support.
 
-## Updating TradingView Packages
+## Updating TradingView packages
 
 With npm:
 
 ```bash
-npm run tv:install:ac -- 31.2.0
-npm run tv:install:tp -- 31.2.0
+npm run tv:install:ac -- 33.1.0
+npm run tv:install:tp -- 33.1.0
 ```
 
 If you manually placed `charting_library-master` or `trading_platform-master` in
@@ -112,7 +122,7 @@ npm run start
 Hard refresh the browser after package changes so old TradingView chunks are not
 reused.
 
-## Useful Notes
+## Useful notes
 
 - `npm run tv:sync` copies package assets into `vendor/tradingview/`.
 - `npm run tv:install:ac` installs only the Advanced Charts runtime into
