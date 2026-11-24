@@ -322,35 +322,15 @@ function installToolbar(widget) {
 	});
 }
 
-function whenChartReady(widget) {
-	if (typeof widget.chartReady === 'function') {
-		return widget.chartReady();
-	}
-
-	return new Promise(resolve => {
-		widget.onChartReady(resolve);
-	});
-}
-
-function saveWidgetChart(widget, options) {
-	if (typeof widget.chartReady === 'function') {
-		return widget.saveChartToServer(options);
-	}
-
-	return new Promise((resolve, reject) => {
-		widget.saveChartToServer(resolve, reject, options);
-	});
-}
-
 // Keep custom chart subscriptions together so future event wiring has one obvious home.
 function installChartReadySubscriptions(widget, alertController) {
 	widget.subscribe('onAutoSaveNeeded', () => {
 		if (typeof widget.saveChartToServer === 'function') {
-			saveWidgetChart(widget, {
-				defaultChartName: 'Default',
-			}).catch(error => {
-				console.error('Failed to save chart to server:', error);
-			});
+			widget
+				.saveChartToServer({ defaultChartName: 'Default' })
+				.catch(error => {
+					console.error('Failed to save chart to server:', error);
+				});
 		}
 	});
 
@@ -407,7 +387,8 @@ async function initTradingPlatformChart() {
 	window.widget = wdg;
 	window.tvWidget = wdg;
 
-	whenChartReady(wdg)
+	wdg
+		.chartReady()
 		.then(() => {
 			window.setTimeout(() => {
 				if (!brokerHost) {
